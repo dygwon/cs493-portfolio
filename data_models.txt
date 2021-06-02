@@ -4,7 +4,7 @@
     "id": 12345,
     "firstName": "Warren",
     "lastName": "Buffett",
-    "portfolio": 23456,
+    "portfolio": 23456
 }
 
 
@@ -18,11 +18,11 @@
 }
 
 
-// Stocks
+// Stock
 
 {
     "id": 987,
-    "portfolio": 23456,
+    "portfolios": [23456, 34567],
     "ticker": "W",
     "company": "Wayfair Inc.",
 }
@@ -32,7 +32,7 @@
 
 {
     "id": 135,
-    "portfolio": 23456,
+    "portfolios": [23456, 45678],
     "ticker": "BTC",
     "name": "Bitcoin"
 }
