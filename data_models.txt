@@ -1,6 +1,38 @@
-// Government Agency
+// Investor
+
 {
     "id": 12345,
-    "type": "federal",
-    
+    "firstName": "Warren",
+    "lastName": "Buffett",
+    "portfolio": 23456,
+}
+
+
+// Portfolio
+
+{
+    "id": 23456,
+    "owner": 12345,
+    "stocks": [987, 876, 765],
+    "bonds": [135, 246],
+}
+
+
+// Stocks
+
+{
+    "id": 987,
+    "portfolio": 23456,
+    "ticker": "W",
+    "company": "Wayfair Inc.",
+}
+
+
+// Cryptocurrency
+
+{
+    "id": 135,
+    "portfolio": 23456,
+    "ticker": "BTC",
+    "name": "Bitcoin"
 }
