@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/dygwon/cs493-portfolio/issues"
   },
-  "homepage": "https://github.com/dygwon/cs493-portfolio#readme"
+  "homepage": "https://github.com/dygwon/cs493-portfolio#readme",
+  "dependencies": {
+    "jshint": "^2.13.0"
+  }
 }
