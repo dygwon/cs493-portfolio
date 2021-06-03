@@ -55,7 +55,7 @@ app.use(logger('dev'));
 
 // GET Homepage
 app.get('/', (req, res, next) => {
-    res.send("app is working!");
+    res.status(200).send("app is working!").end();
 });
 
 
