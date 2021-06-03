@@ -50,7 +50,7 @@ app.use(logger('dev'));
  app.use('/investors', investorsRouter);
  app.use('/portfolios', portfoliosRouter);
  app.use('/stocks', stocksRouter);
- app.use('/crypto', cryptoRouter);
+ app.use('/cryptos', cryptoRouter);
 
 
 // GET Homepage
