@@ -1,29 +1,31 @@
 // ../routes/stocks.routes.js
 
 
-const router = require('express').Router();
+const router = require('express-promise-router')();
+const { body, validationResult } = require('express-validator');
+const StockControllers = require('../controllers/stocks.controllers');
 
 
 router.route('/')
     .post((req, res) => {
-        res.status(200).send("creating a stock").end();
+        StockControllers.createStock(req, res);
     })
     .get((req, res) => {
-        res.status(200).send("list stocks").end();
+        StockControllers.listStocks(req, res);
     });
 
 router.route('/:stockId')
     .get((req, res) => {
-        res.status(200).send("getting specified stock").end();
+        StockControllers.getStock(req, res);
     })
     .put((req, res) => {
-        res.status(200).send("update a stock (put)").end();
+        StockControllers.putStock(req, res);
     })
     .patch((req, res) => {
-        res.status(200).send("update a stock (patch)").end();
+        StockControllers.patchStock(req, res);
     })
     .delete((req, res) => {
-        res.status(200).send("delete a stock").end();
+        StockControllers.deleteStock(req, res);
     });
 
 
