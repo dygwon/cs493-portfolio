@@ -7,7 +7,7 @@
  */
 
 
-const { PORTFOLIO } = require('../helpers/constants.helpers');
+const { PORTFOLIO, STOCK, CRYPTO } = require('../helpers/constants.helpers');
 const Portfolio = require('../models/portfolios.models');
 const DatastoreHelpers = require('../helpers/datastore.helpers');
 const ControllerHelpers = require('../helpers/controllers.helpers');
@@ -34,7 +34,47 @@ module.exports = {
     },
 
     getPortfolio: async (req, res) => {
-        res.status(200).send("getting specified portfolio").end();
+        try {
+
+            // generate key and get portfolio info
+            let portfolioId = parseInt(req.params.portfolioId, 10);
+            const portfolioKey = await DatastoreHelpers.getKey(PORTFOLIO, portfolioId);
+            const portfolioData = await DatastoreHelpers.getEntity(portfolioKey);
+            const portfolio = Portfolio.fromDatastore(portfolioData);
+
+            // get stock names
+            let stockIds = portfolio.stocks;
+            let companies = [];
+            for (let i = 0; i < stockIds.length; i++) {
+                let stockKey = await DatastoreHelpers.getKey(STOCK, stockIds[i]);
+                let stockData = await DatastoreHelpers.getEntity(stockKey);
+                companies.push(stockData.company);
+            }
+
+            // get crypto names
+            let cryptoIds = portfolio.cryptos;
+            let cryptoNames = [];
+            for (i = 0; i < cryptoIds.length; i++) {
+                let cryptoKey = await DatastoreHelpers.getKey(CRYPTO, cryptoIds[i]);
+                let cryptoData = await DatastoreHelpers.getEntity(cryptoKey);
+                cryptoNames.push(cryptoData.name);
+            }
+
+            // generate response with DTO
+            let URL = ControllerHelpers.getURL(req, portfolioKey);
+            res.status(200).json({
+                id: portfolioKey.id,
+                owner: portfolio.owner,
+                stocks: companies,
+                cryptos: cryptoNames,
+                self: URL
+            }).end();
+
+        } catch (err) {
+            res.status(404).json({
+                Error: "No portfolio with this id exists"
+            }).end();
+        }
     },
 
     listPortfolios: async (req, res) => {
