@@ -1,29 +1,31 @@
 // ../routes/crypto.routes.js
 
 
-const router = require('express').Router();
+const router = require('express-promise-router')();
+const { body, validationResult } = require('express-validator');
+const CryptoControllers = require('../controllers/cryptos.controllers');
 
 
 router.route('/')
     .post((req, res) => {
-        res.status(200).send("creating a cryptocurrency").end();
+        CryptoControllers.createCrypto(req, res);
     })
     .get((req, res) => {
-        res.status(200).send("list cryptocurrencies").end();
+        CryptoControllers.listCryptos(req, res);
     });
 
 router.route('/:cryptoId')
     .get((req, res) => {
-        res.status(200).send("getting specified cryptocurrency").end();
+        CryptoControllers.getCrypto(req, res);
     })
     .put((req, res) => {
-        res.status(200).send("update a cryptocurrency (put)").end();
+        CryptoControllers.putCrypto(req, res);
     })
     .patch((req, res) => {
-        res.status(200).send("update a cryptocurrency (patch)").end();
+        CryptoControllers.patchCrypto(req, res);
     })
     .delete((req, res) => {
-        res.status(200).send("delete a cryptocurrency").end();
+        CryptoControllers.deleteCrypto(req, res);
     });
 
 
