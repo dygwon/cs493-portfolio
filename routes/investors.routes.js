@@ -8,8 +8,8 @@ const InvestorControllers = require('../controllers/investors.controllers');
 
 router.route('/')
     .post(
-        body('firstName').isAlpha("en-US", { ignore: " -" }),
-        body('lastName').isAlpha("en-US", { ignore: " -" }),
+        body('firstName').isAlpha("en-US", { ignore: " -" }).exists(),
+        body('lastName').isAlpha("en-US", { ignore: " -" }).exists(),
         (req, res) => {
             
             // check for valid request content type

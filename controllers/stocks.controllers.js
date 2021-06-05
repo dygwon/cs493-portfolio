@@ -9,7 +9,22 @@ const ControllerHelpers = require('../helpers/controllers.helpers');
 
 module.exports = {
     createStock: async (req, res) => {
-        res.status(200).send("creating a stock").end();
+        const stock = Stock.fromReqBody(req.body);
+
+        // generate key and save new investor
+        let stockKey = await DatastoreHelpers.getKey(STOCK);
+        await DatastoreHelpers.createEntity(stockKey, stock);
+
+        // generate reponse with DTO
+        let URL = ControllerHelpers.getURL(req, stockKey);
+        res.set("Content-Location", URL);
+        res.status(201).json({
+            id: stockKey.id,
+            portfolios: stock.portfolios,
+            ticker: stock.ticker,
+            company: stock.company,
+            self: URL
+        }).end();
     },
 
     getStock: async (req, res) => {
@@ -31,4 +46,4 @@ module.exports = {
     deleteStock: async (req, res) => {
         res.status(200).send("delete a stock").end();
     }
-}
+};
