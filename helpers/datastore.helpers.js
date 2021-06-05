@@ -8,8 +8,14 @@ const datastore = new Datastore();
 module.exports = {
 
     // generate a key for the given entity type
-    getKey: async (type) => {
+    getEntityKey: async (type) => {
         let key = await datastore.key(type);
+        return key;
+    },
+
+    // generate a specific key given id
+    getKey: async (type, id) => {
+        let key = await datastore.key([type, id]);
         return key;
     },
 
@@ -19,5 +25,10 @@ module.exports = {
             "key": key,
             "data": data
         });
+    },
+
+    getEntity: async (key) => {
+        const [ entity ] = await datastore.get(key);
+        return entity;
     }
 };
