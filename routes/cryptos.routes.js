@@ -41,6 +41,15 @@ router.route('/')
             CryptoControllers.createCrypto(req, res);
         })
     .get((req, res) => {
+
+        // check for valid requested content type
+        const requestAccepts = req.get('accept');
+        if (requestAccepts !== 'application/json') {
+            return res.status(406).json({
+                Error: "Requested an unsupported MIME type"
+            });
+        }
+
         CryptoControllers.listCryptos(req, res);
     });
 
@@ -54,7 +63,7 @@ router.route('/:cryptoId')
                 Error: "Requested an unsupported MIME type"
             });
         }
-        
+
         CryptoControllers.getCrypto(req, res);
     })
     .put((req, res) => {
