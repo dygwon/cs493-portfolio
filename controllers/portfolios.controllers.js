@@ -18,7 +18,7 @@ module.exports = {
         const portfolio = Portfolio.fromReqBody(req.body);
 
         // generate key and save new portfolio
-        let portfolioKey = await DatastoreHelpers.getKey(PORTFOLIO);
+        let portfolioKey = await DatastoreHelpers.getEntityKey(PORTFOLIO);
         await DatastoreHelpers.createEntity(portfolioKey, portfolio);
 
         // generate response with DTO

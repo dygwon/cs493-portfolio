@@ -12,7 +12,7 @@ module.exports = {
         const stock = Stock.fromReqBody(req.body);
 
         // generate key and save new investor
-        let stockKey = await DatastoreHelpers.getKey(STOCK);
+        let stockKey = await DatastoreHelpers.getEntityKey(STOCK);
         await DatastoreHelpers.createEntity(stockKey, stock);
 
         // generate reponse with DTO

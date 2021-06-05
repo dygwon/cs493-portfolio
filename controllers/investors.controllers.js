@@ -3,7 +3,10 @@
 
 /**
  * TODO
- * immplement authentication
+ * - immplement authentication
+ * - remove portfolio id - only time ids/names show is when authenticated user is accessing
+ *   portfolio
+ * - make validation for incorrect id specific to ids for getInvestor
  */
 
 
@@ -18,7 +21,7 @@ module.exports = {
         const investor = Investor.fromReqBody(req.body);
 
         // generate key and save new investor
-        let investorKey = await DatastoreHelpers.getKey(INVESTOR);
+        let investorKey = await DatastoreHelpers.getEntityKey(INVESTOR);
         await DatastoreHelpers.createEntity(investorKey, investor);
 
         // generate reponse with DTO
@@ -34,7 +37,28 @@ module.exports = {
     },
 
     getInvestor: async (req, res) => {
-        res.status(200).send("getting specified investor").end();
+        try {
+
+            // generate key and get investor info
+            let investorId = parseInt(req.params.investorId, 10);
+            const investorKey = await DatastoreHelpers.getKey(INVESTOR, investorId);
+            const investorData = await DatastoreHelpers.getEntity(investorKey);
+            const investor = Investor.fromDatastore(investorData);
+
+            // generate response with DTO
+            let URL = ControllerHelpers.getURL(req, investorKey);
+            res.status(200).json({
+                id: investorKey.id,
+                firstName: investor.firstName,
+                lastName: investor.lastName,
+                self: URL
+            }).end();
+
+        } catch (err) {
+            res.status(404).json({
+                Error: "No investor with this id exists"
+            }).end();
+        }
     },
 
     listInvestors: async (req, res) => {

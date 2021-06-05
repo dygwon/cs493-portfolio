@@ -2,16 +2,23 @@
 
 
 const router = require('express-promise-router')();
-const { body, validationResult } = require('express-validator');
+const {
+    body,
+    validationResult
+} = require('express-validator');
 const InvestorControllers = require('../controllers/investors.controllers');
 
 
 router.route('/')
     .post(
-        body('firstName').isAlpha("en-US", { ignore: " -" }).exists(),
-        body('lastName').isAlpha("en-US", { ignore: " -" }).exists(),
+        body('firstName').isAlpha("en-US", {
+            ignore: " -"
+        }).exists(),
+        body('lastName').isAlpha("en-US", {
+            ignore: " -"
+        }).exists(),
         (req, res) => {
-            
+
             // check for valid request content type
             if (!req.is('application/json')) {
                 return res.status(415).json({
@@ -43,6 +50,15 @@ router.route('/')
 
 router.route('/:investorId')
     .get((req, res) => {
+
+        // check for valid requested content type
+        const requestAccepts = req.get('accept');
+        if (requestAccepts !== 'application/json') {
+            return res.status(406).json({
+                Error: "Requested an unsupported MIME type"
+            });
+        }
+
         InvestorControllers.getInvestor(req, res);
     })
     .put((req, res) => {

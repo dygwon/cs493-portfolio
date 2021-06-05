@@ -12,7 +12,7 @@ module.exports = {
         const crypto = Crypto.fromReqBody(req.body);
 
         // generate key and save new investor
-        let cryptoKey = await DatastoreHelpers.getKey(CRYPTO);
+        let cryptoKey = await DatastoreHelpers.getEntityKey(CRYPTO);
         await DatastoreHelpers.createEntity(cryptoKey, crypto);
 
         // generate reponse with DTO
