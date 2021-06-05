@@ -38,21 +38,21 @@ router.route('/')
             InvestorsControllers.createInvestor(req, res);
         })
     .get((req, res) => {
-        res.status(200).send("list investors").end();
+        InvestorsControllers.listInvestors(req, res);
     });
 
 router.route('/:investorId')
     .get((req, res) => {
-        res.status(200).send("getting specified investor").end();
+        InvestorsControllers.getInvestor(req, res);
     })
     .put((req, res) => {
-        res.status(200).send("update an investor (put)").end();
+        InvestorsControllers.putInvestor(req, res);
     })
     .patch((req, res) => {
-        res.status(200).send("update an investor (patch)").end();
+        InvestorsControllers.patchInvestor(req, res);
     })
     .delete((req, res) => {
-        res.status(200).send("delete an investor").end();
+        InvestorsControllers.deleteInvestor(req, res);
     });
 
 
