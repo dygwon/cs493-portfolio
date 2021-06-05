@@ -3,13 +3,13 @@
 
 const router = require('express-promise-router')();
 const { body, validationResult } = require('express-validator');
-const InvestorsControllers = require('../controllers/investors.controllers');
+const InvestorControllers = require('../controllers/investors.controllers');
 
 
 router.route('/')
     .post(
-        body('firstName').isAlpha("en-US", { ignore: " -" }),
-        body('lastName').isAlpha("en-US", { ignore: " -" }),
+        body('firstName').isAlpha("en-US", { ignore: " -" }).exists(),
+        body('lastName').isAlpha("en-US", { ignore: " -" }).exists(),
         (req, res) => {
             
             // check for valid request content type
@@ -35,24 +35,24 @@ router.route('/')
                 });
             }
 
-            InvestorsControllers.createInvestor(req, res);
+            InvestorControllers.createInvestor(req, res);
         })
     .get((req, res) => {
-        InvestorsControllers.listInvestors(req, res);
+        InvestorControllers.listInvestors(req, res);
     });
 
 router.route('/:investorId')
     .get((req, res) => {
-        InvestorsControllers.getInvestor(req, res);
+        InvestorControllers.getInvestor(req, res);
     })
     .put((req, res) => {
-        InvestorsControllers.putInvestor(req, res);
+        InvestorControllers.putInvestor(req, res);
     })
     .patch((req, res) => {
-        InvestorsControllers.patchInvestor(req, res);
+        InvestorControllers.patchInvestor(req, res);
     })
     .delete((req, res) => {
-        InvestorsControllers.deleteInvestor(req, res);
+        InvestorControllers.deleteInvestor(req, res);
     });
 
 

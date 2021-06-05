@@ -19,7 +19,7 @@ const logger = require('morgan');
 const investorsRouter = require('./routes/investors.routes');
 const portfoliosRouter = require('./routes/portfolios.routes');
 const stocksRouter = require('./routes/stocks.routes');
-const cryptoRouter = require('./routes/crypto.routes');
+const cryptoRouter = require('./routes/cryptos.routes');
 
 
 /**
