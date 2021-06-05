@@ -1,7 +1,8 @@
 // ../routes/investors.routes.js
 
 
-const router = require('express').Router();
+const router = require('express-promise-router')();
+const { check, validationResult } = require('express-validator');
 
 
 router.route('/')
