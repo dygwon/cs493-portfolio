@@ -8,11 +8,9 @@ class Portfolio {
         this.cryptos = cryptos;
     }
 
-    static fromReqBody(sub, reqBody) {
+    static fromReqBody(reqBody) {
         return new Portfolio(
-            sub,
-            reqBody.stocks,
-            reqBody.cryptos
+            reqBody.owner
         );
     }
 

@@ -1,6 +1,12 @@
 // ../controllers/portfolios.controllers.js
 
 
+/**
+ * TODO
+ * use 'cryptos' in model and documentation
+ */
+
+
 const { PORTFOLIO } = require('../helpers/constants.helpers');
 const Portfolio = require('../models/portfolios.models');
 const DatastoreHelpers = require('../helpers/datastore.helpers');
@@ -9,7 +15,22 @@ const ControllerHelpers = require('../helpers/controllers.helpers');
 
 module.exports = {
     createPortfolio: async (req, res) => {
-        res.status(200).send("creating a portfolio").end();
+        const portfolio = Portfolio.fromReqBody(req.body);
+
+        // generate key and save new portfolio
+        let portfolioKey = await DatastoreHelpers.getKey(PORTFOLIO);
+        await DatastoreHelpers.createEntity(portfolioKey, portfolio);
+
+        // generate response with DTO
+        let URL = ControllerHelpers.getURL(req, portfolioKey);
+        res.set("Content-Location", URL);
+        res.status(201).json({
+            id: portfolioKey.id,
+            owner: portfolio.owner,
+            stocks: portfolio.stocks,
+            cryptos: portfolio.cryptos,
+            self: URL
+        }).end();
     },
 
     getPortfolio: async (req, res) => {
