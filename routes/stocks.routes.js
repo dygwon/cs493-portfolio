@@ -46,6 +46,15 @@ router.route('/')
 
 router.route('/:stockId')
     .get((req, res) => {
+
+        // check for valid requested content type
+        const requestAccepts = req.get('accept');
+        if (requestAccepts !== 'application/json') {
+            return res.status(406).json({
+                Error: "Requested an unsupported MIME type"
+            });
+        }
+
         StockControllers.getStock(req, res);
     })
     .put((req, res) => {
