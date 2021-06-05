@@ -1,6 +1,12 @@
 // ../controllers/investors.controllers.js
 
 
+/**
+ * TODO
+ * immplement authentication
+ */
+
+
 const { INVESTOR } = require('../helpers/constants.helpers');
 const Investor = require('../models/investors.models');
 const DatastoreHelpers = require('../helpers/datastore.helpers');
