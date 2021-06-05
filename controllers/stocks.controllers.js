@@ -28,7 +28,28 @@ module.exports = {
     },
 
     getStock: async (req, res) => {
-        res.status(200).send("getting specified stock").end();
+        try {
+
+            // generate key and get investor info
+            let stockId = parseInt(req.params.stockId, 10);
+            const stockKey = await DatastoreHelpers.getKey(STOCK, stockId);
+            const stockData = await DatastoreHelpers.getEntity(stockKey);
+            const stock = Stock.fromDatastore(stockData);
+
+            // generate response with DTO
+            let URL = ControllerHelpers.getURL(req, stockKey);
+            res.status(200).json({
+                id: stockKey.id,
+                ticker: stock.ticker,
+                company: stock.company,
+                self: URL
+            }).end();
+
+        } catch (err) {
+            res.status(404).json({
+                Error: "No stock with this id exists"
+            }).end();
+        }
     },
 
     listStocks: async (req, res) => {
