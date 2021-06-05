@@ -60,6 +60,10 @@ module.exports = {
                 cryptoNames.push(cryptoData.name);
             }
 
+            // TODO verify portfolio with stocks and crypto responds correctly
+            console.log(companies);
+            console.log(cryptoNames);
+
             // generate response with DTO
             let URL = ControllerHelpers.getURL(req, portfolioKey);
             res.status(200).json({
