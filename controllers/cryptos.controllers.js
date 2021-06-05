@@ -9,7 +9,22 @@ const ControllerHelpers = require('../helpers/controllers.helpers');
 
 module.exports = {
     createCrypto: async (req, res) => {
-        res.status(200).send("creating a cryptocurrency").end();
+        const crypto = Crypto.fromReqBody(req.body);
+
+        // generate key and save new investor
+        let cryptoKey = await DatastoreHelpers.getKey(CRYPTO);
+        await DatastoreHelpers.createEntity(cryptoKey, crypto);
+
+        // generate reponse with DTO
+        let URL = ControllerHelpers.getURL(req, cryptoKey);
+        res.set("Content-Location", URL);
+        res.status(201).json({
+            id: cryptoKey.id,
+            portfolios: crypto.portfolios,
+            ticker: crypto.ticker,
+            name: crypto.name,
+            self: URL
+        }).end();
     },
 
     getCrypto: async (req, res) => {
