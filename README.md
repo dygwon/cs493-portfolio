@@ -1,4 +1,5 @@
 # CS 493 - Portfolio Project
+A RESTful API with protected routes.
  
 ## Data Models
 ### Investor
