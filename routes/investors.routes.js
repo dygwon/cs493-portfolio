@@ -3,6 +3,7 @@
 
 const router = require('express-promise-router')();
 const { body, validationResult } = require('express-validator');
+const InvestorsControllers = require('../controllers/investors.controllers');
 
 
 router.route('/')
@@ -34,8 +35,7 @@ router.route('/')
                 });
             }
 
-
-            res.status(200).send("creating an investor").end();
+            InvestorsControllers.createInvestor(req, res);
         })
     .get((req, res) => {
         res.status(200).send("list investors").end();
