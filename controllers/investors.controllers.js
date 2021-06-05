@@ -10,7 +10,7 @@
  */
 
 
-const { INVESTOR } = require('../helpers/constants.helpers');
+const { INVESTOR, PAGELIMIT } = require('../helpers/constants.helpers');
 const Investor = require('../models/investors.models');
 const DatastoreHelpers = require('../helpers/datastore.helpers');
 const ControllerHelpers = require('../helpers/controllers.helpers');

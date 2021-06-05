@@ -2,7 +2,7 @@
 
 
 const {
-    CRYPTO
+    CRYPTO, PAGELIMIT
 } = require('../helpers/constants.helpers');
 const Crypto = require('../models/cryptos.models');
 const DatastoreHelpers = require('../helpers/datastore.helpers');
