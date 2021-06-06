@@ -1,0 +1,17 @@
+//- views/user.pug
+
+
+extends layout
+
+
+block layout-content 
+  br
+  .w3-container 
+    .w3-card-4 
+      a(href="/")
+        div.NavButton Home
+      header 
+      h1 Welcome #{user.nickname}
+      img(src=user.picture)
+      h2 User's JWT
+      p #{user.id_token}
