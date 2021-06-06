@@ -10,7 +10,10 @@
  */
 
 
-const { INVESTOR, PAGELIMIT } = require('../helpers/constants.helpers');
+const {
+    INVESTOR,
+    PAGELIMIT
+} = require('../helpers/constants.helpers');
 const Investor = require('../models/investors.models');
 const DatastoreHelpers = require('../helpers/datastore.helpers');
 const ControllerHelpers = require('../helpers/controllers.helpers');
@@ -96,7 +99,7 @@ module.exports = {
     },
 
     // TODO: put, patch, and delete investor should be done by authenticated user?
-    putInvestor: async (req, res) => {
+    updateInvestor: async (req, res) => {
         try {
 
             // generate key and get investor info
@@ -106,15 +109,22 @@ module.exports = {
             const investor = Investor.fromDatastore(investorData);
 
             // update investor data and save in datastore
-            investor.firstName = req.body.firstName;
-            investor.lastName = req.body.lastName;
-            investor.location = req.body.location;
+            investor.firstName = req.body.firstName || investor.firstName;
+            investor.lastName = req.body.lastName || investor.lastName;
+            investor.location = req.body.location || investor.location;
             await DatastoreHelpers.updateEntity(investorKey, investor);
 
-            // generate response with DTO
-            let URL = ControllerHelpers.getURL(req, investorKey);
-            res.set('Content-Location', URL);
-            res.status(303).json({
+            // generate status and header based on HTTP method
+            let URL = ControllerHelpers.getURL(req, investorKey)
+            if (req.method == 'PUT') {
+                res.set('Content-Location', URL);
+                res.status(303);
+            } else {
+                res.status(200);
+            }
+
+            // send the reponse
+            res.json({
                 id: investorKey.id,
                 firstName: investor.firstName,
                 lastName: investor.lastName,
@@ -127,10 +137,6 @@ module.exports = {
                 Error: "No investor with this id exists"
             }).end();
         }
-    },
-
-    patchInvestor: async (req, res) => {
-        res.status(200).send("update an investor (patch)").end();
     },
 
     deleteInvestor: async (req, res) => {
