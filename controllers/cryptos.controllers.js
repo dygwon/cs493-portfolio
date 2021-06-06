@@ -26,6 +26,7 @@ module.exports = {
             portfolios: crypto.portfolios,
             ticker: crypto.ticker,
             name: crypto.name,
+            supply: crypto.supply,
             self: URL
         }).end();
     },
@@ -45,6 +46,7 @@ module.exports = {
                 id: cryptoKey.id,
                 ticker: crypto.ticker,
                 name: crypto.name,
+                supply: crypto.supply,
                 self: URL
             }).end();
 
@@ -88,7 +90,36 @@ module.exports = {
     },
 
     putCrypto: async (req, res) => {
-        res.status(200).send("update a cryptocurrency (put)").end();
+        try {
+
+            // generate key and get crypto info
+            let cryptoId = parseInt(req.params.cryptoId, 10);
+            const cryptoKey = await DatastoreHelpers.getKey(CRYPTO, cryptoId);
+            const cryptoData = await DatastoreHelpers.getEntity(cryptoKey);
+            const crypto = Crypto.fromDatastore(cryptoData);
+
+            // update crypto data and save in datastore
+            crypto.ticker = req.body.ticker;
+            crypto.name = req.body.name;
+            crypto.supply = req.body.supply;
+            await DatastoreHelpers.updateEntity(cryptoKey, crypto);
+
+            // generate response with DTO
+            let URL = ControllerHelpers.getURL(req, cryptoKey);
+            res.set('Content-Location', URL);
+            res.status(303).json({
+                id: cryptoKey.id,
+                ticker: crypto.ticker,
+                name: crypto.name,
+                supply: crypto.supply,
+                self: URL
+            }).end();
+
+        } catch (err) {
+            res.status(404).json({
+                Error: "No crypto with this id exists"
+            }).end();
+        }
     },
 
     patchCrypto: async (req, res) => {

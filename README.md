@@ -44,5 +44,6 @@ A RESTful API with protected routes.
     "portfolios": [23456, 45678],
     "ticker": "BTC",
     "name": "Bitcoin"
+    "supply": 18700000
 }
 ```
