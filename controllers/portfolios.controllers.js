@@ -14,6 +14,7 @@ const {
     PAGELIMIT
 } = require('../helpers/constants.helpers');
 const Portfolio = require('../models/portfolios.models');
+const Stock = require('../models/stocks.models');
 const DatastoreHelpers = require('../helpers/datastore.helpers');
 const ControllerHelpers = require('../helpers/controllers.helpers');
 
@@ -180,7 +181,51 @@ module.exports = {
     },
 
     addStockToPortfolio: async (req, res) => {
-        res.status(200).send("add stock to portfolio").end();
+        try {
+            let portfolioId = req.params.portfolioId;
+            let stockId = req.params.stockId;
+
+            // check if ids are valid
+            let portfolioIdFound = await DatastoreHelpers.isValidId(PORTFOLIO, portfolioId);
+            let stockIdFound = await DatastoreHelpers.isValidId(STOCK, stockId);
+            if (!(portfolioIdFound && stockIdFound)) {
+                throw "InvalidId";
+            }
+
+            // check if the portfolio contains the stock
+            portfolioId = parseInt(portfolioId, 10);
+            stockId = parseInt(stockId, 10);
+            const portfolioKey = await DatastoreHelpers.getKey(PORTFOLIO, portfolioId);
+            const portfolioData = await DatastoreHelpers.getEntity(portfolioKey);
+            const portfolio = Portfolio.fromDatastore(portfolioData);
+            if (portfolio.stocks.includes(stockId)) {
+                throw "StockAlreadyInPortfolio";
+            }
+
+            // add the stock to the portfolio
+            portfolio.stocks.push(stockId);
+            await DatastoreHelpers.updateEntity(portfolioKey, portfolio);
+
+            // add the portfolio to the stock
+            const stockKey = await DatastoreHelpers.getKey(STOCK, stockId);
+            const stockData = await DatastoreHelpers.getEntity(stockKey);
+            const stock = Stock.fromDatastore(stockData);
+            stock.portfolios.push(portfolioId);
+            await DatastoreHelpers.updateEntity(stockKey, stock);
+
+            res.status(204).send().end();
+
+        } catch (err) {
+            if (err === "InvalidId") {
+                res.status(404).json({
+                    Error: "The specified portfolio and/or stock does not exist"
+                }).end();
+            } else {
+                res.status(403).json({
+                    Error: "Not authenticated or stock already in portfolio"
+                }).end();
+            }
+        }
     },
 
     removeStockFromPortfolio: async (req, res) => {
