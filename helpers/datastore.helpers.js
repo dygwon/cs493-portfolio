@@ -72,19 +72,5 @@ module.exports = {
     // checks if the current query has additional pages to show
     noMoreResults: (queryResultsInfo) => {
         return (queryResultsInfo.moreResults === Datastore.NO_MORE_RESULTS);
-    },
-
-    // checks if an id exists
-    isValidId: async (type, id) => {
-        let keysOnlyQuery = datastore.createQuery(type).select('__key__');
-        let entities = await datastore.runQuery(keysOnlyQuery);
-        let result = false;
-        entities[0].forEach((entity) => {
-            if (entity[Datastore.KEY].id === id) {
-                result = true;
-            }
-        });
-
-        return result;
     }
 };

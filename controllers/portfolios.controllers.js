@@ -184,17 +184,10 @@ module.exports = {
         try {
             let portfolioId = req.params.portfolioId;
             let stockId = req.params.stockId;
-
-            // check if ids are valid
-            let portfolioIdFound = await DatastoreHelpers.isValidId(PORTFOLIO, portfolioId);
-            let stockIdFound = await DatastoreHelpers.isValidId(STOCK, stockId);
-            if (!(portfolioIdFound && stockIdFound)) {
-                throw "InvalidId";
-            }
-
-            // check if the portfolio contains the stock
             portfolioId = parseInt(portfolioId, 10);
             stockId = parseInt(stockId, 10);
+
+            // check if the portfolio contains the stock
             const portfolioKey = await DatastoreHelpers.getKey(PORTFOLIO, portfolioId);
             const portfolioData = await DatastoreHelpers.getEntity(portfolioKey);
             const portfolio = Portfolio.fromDatastore(portfolioData);
@@ -216,13 +209,13 @@ module.exports = {
             res.status(204).send().end();
 
         } catch (err) {
-            if (err === "InvalidId") {
-                res.status(404).json({
-                    Error: "The specified portfolio and/or stock does not exist"
-                }).end();
-            } else {
+            if (err === "StockAlreadyInPortfolio") {
                 res.status(403).json({
                     Error: "Not authenticated or stock already in portfolio"
+                }).end();
+            } else {
+                res.status(404).json({
+                    Error: "The specified portfolio and/or stock does not exist"
                 }).end();
             }
         }
