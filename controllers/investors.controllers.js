@@ -115,7 +115,7 @@ module.exports = {
             await DatastoreHelpers.updateEntity(investorKey, investor);
 
             // generate status and header based on HTTP method
-            let URL = ControllerHelpers.getURL(req, investorKey)
+            let URL = ControllerHelpers.getURL(req, investorKey);
             if (req.method == 'PUT') {
                 res.set('Content-Location', URL);
                 res.status(303);
