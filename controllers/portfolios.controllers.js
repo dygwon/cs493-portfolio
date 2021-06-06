@@ -15,6 +15,7 @@ const {
 } = require('../helpers/constants.helpers');
 const Portfolio = require('../models/portfolios.models');
 const Stock = require('../models/stocks.models');
+const Crypto = require('../models/cryptos.models');
 const DatastoreHelpers = require('../helpers/datastore.helpers');
 const ControllerHelpers = require('../helpers/controllers.helpers');
 
@@ -277,10 +278,98 @@ module.exports = {
     },
 
     addCryptoToPortfolio: async (req, res) => {
-        res.status(200).send("add cryptocurrency to portfolio").end();
+        try {
+            let portfolioId = req.params.portfolioId;
+            let cryptoId = req.params.cryptoId;
+            portfolioId = parseInt(portfolioId, 10);
+            cryptoId = parseInt(cryptoId, 10);
+
+            // get portfolio data
+            const portfolioKey = await DatastoreHelpers.getKey(PORTFOLIO, portfolioId);
+            const portfolioData = await DatastoreHelpers.getEntity(portfolioKey);
+            const portfolio = Portfolio.fromDatastore(portfolioData);
+
+            // get crypto data
+            const cryptoKey = await DatastoreHelpers.getKey(CRYPTO, cryptoId);
+            const cryptoData = await DatastoreHelpers.getEntity(cryptoKey);
+            const crypto = Crypto.fromDatastore(cryptoData);
+
+            // check if the portfolio contains the crypto
+            if (portfolio.cryptos.includes(cryptoId)) {
+                throw "CryptoAlreadyInPortfolio";
+            }
+
+            // add the crypto to the portfolio
+            portfolio.cryptos.push(cryptoId);
+            await DatastoreHelpers.updateEntity(portfolioKey, portfolio);
+
+            // add the portfolio to the crypto
+            crypto.portfolios.push(portfolioId);
+            await DatastoreHelpers.updateEntity(cryptoKey, crypto);
+
+            res.status(204).send().end();
+
+        } catch (err) {
+            if (err === "CryptoAlreadyInPortfolio") {
+                res.status(403).json({
+                    Error: "Not authenticated or crypto already in portfolio"
+                }).end();
+            } else {
+                res.status(404).json({
+                    Error: "The specified portfolio and/or crypto does not exist"
+                }).end();
+            }
+        }
     },
 
     removeCryptoFromPortfolio: async (req, res) => {
-        res.status(200).send("remove cryptocurrency from portfolio").end();
+        try {
+            let portfolioId = req.params.portfolioId;
+            let cryptoId = req.params.cryptoId;
+            portfolioId = parseInt(portfolioId, 10);
+            cryptoId = parseInt(cryptoId, 10);
+
+            // get portfolio data
+            const portfolioKey = await DatastoreHelpers.getKey(PORTFOLIO, portfolioId);
+            const portfolioData = await DatastoreHelpers.getEntity(portfolioKey);
+            const portfolio = Portfolio.fromDatastore(portfolioData);
+
+            // get crypto data
+            const cryptoKey = await DatastoreHelpers.getKey(CRYPTO, cryptoId);
+            const cryptoData = await DatastoreHelpers.getEntity(cryptoKey);
+            const crypto = Crypto.fromDatastore(cryptoData);
+
+            // check if the portfolio contains the crypto
+            if (!portfolio.cryptos.includes(cryptoId)) {
+                throw "CryptoNotInPortfolio";
+            }
+
+            // remove the crypto from the portfolio
+            const cryptoIndex = portfolio.cryptos.indexOf(cryptoId);
+            if (cryptoIndex > -1) {
+                portfolio.cryptos.splice(cryptoIndex, 1);
+            }
+            await DatastoreHelpers.updateEntity(portfolioKey, portfolio);
+
+            // remove the portfolio from the crypto
+            const portfolioIndex = crypto.portfolios.indexOf(portfolioId);
+            if (portfolioIndex > -1) {
+                crypto.portfolios.splice(portfolioIndex, 1);
+            }
+            await DatastoreHelpers.updateEntity(cryptoKey, crypto);
+
+            res.status(204).send().end();
+
+        } catch (err) {
+            if (err === "CryptoNotInPortfolio") {
+                res.status(403).json({
+                    Error: "Not authenticated or crypto not in portfolio"
+                }).end();
+            } else {
+                res.status(404).json({
+                    Error: "The specified portfolio and/or crypto does not exist"
+                }).end();
+            }
+        }
     }
 };
