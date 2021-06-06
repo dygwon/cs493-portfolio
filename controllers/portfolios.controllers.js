@@ -178,7 +178,62 @@ module.exports = {
     },
 
     deletePortfolio: async (req, res) => {
-        res.status(200).send("delete a portfolio").end();
+        try {
+
+            // get stocks and cryptos the portfolio holds
+            let portfolioId = parseInt(req.params.portfolioId, 10);
+            const portfolioKey = await DatastoreHelpers.getKey(PORTFOLIO, portfolioId);
+            const portfolioData = await DatastoreHelpers.getEntity(portfolioKey);
+            const portfolio = Portfolio.fromDatastore(portfolioData);
+            const stocksInPortfolio = portfolio.stocks;
+            const cryptosInPortfolio = portfolio.cryptos;
+
+            // remove the portfolio from each stock
+            let stockId, stockKey, stockData, stock, stockPortfolioIndex;
+            for (let i = 0; i < stocksInPortfolio.length; i++) {
+
+                // get stock from datastore
+                stockId = stocksInPortfolio[i];
+                stockKey = await DatastoreHelpers.getKey(STOCK, stockId);
+                stockData = await DatastoreHelpers.getEntity(stockKey);
+                stock = Stock.fromDatastore(stockData);
+
+                // remove the portfolio's id from the stock
+                stockPortfolioIndex = stock.portfolios.indexOf(portfolioId);
+                if (stockPortfolioIndex > -1) {
+                    stock.portfolios.splice(stockPortfolioIndex, 1);
+                }
+                await DatastoreHelpers.updateEntity(stockKey, stock);
+            }
+
+            // remove the portfolio from each crypto
+            let cryptoId, cryptoKey, cryptoData, crypto, cryptoPortfolioIndex;
+            for (let i = 0; i < cryptosInPortfolio.length; i++) {
+
+                // get crypto from datastore
+                cryptoId = cryptosInPortfolio[i];
+                cryptoKey = await DatastoreHelpers.getKey(CRYPTO, cryptoId);
+                cryptoData = await DatastoreHelpers.getEntity(cryptoKey);
+                crypto = Crypto.fromDatastore(cryptoData);
+
+                // remove the portfolio's id from the crypto
+                cryptoPortfolioIndex = crypto.portfolios.indexOf(portfolioId);
+                if (cryptoPortfolioIndex > -1) {
+                    crypto.portfolios.splice(cryptoPortfolioIndex, 1);
+                }
+                await DatastoreHelpers.updateEntity(cryptoKey, crypto);
+            }
+
+            // remove the portfolio from the datastore
+            await DatastoreHelpers.removeEntity(portfolioKey);
+
+            res.status(204).send().end();
+
+        } catch (err) {
+            res.status(404).json({
+                Error: "No stock with this id exists"
+            });
+        }
     },
 
     addStockToPortfolio: async (req, res) => {
