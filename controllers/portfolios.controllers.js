@@ -82,7 +82,44 @@ module.exports = {
     },
 
     listPortfolios: async (req, res) => {
-        res.status(200).send("list portfolios").end();
+
+        // create the query
+        let query = DatastoreHelpers.createQuery(PORTFOLIO, PAGELIMIT);
+
+        // check if this request is from a previous page
+        if (Object.keys(req.query).includes("cursor")) {
+            query = query.start(req.query.cursor);
+        }
+
+        // get data from datastore
+        let queryResults = await DatastoreHelpers.runQuery(query);
+        let portfolios = queryResults.data;
+        let info = queryResults.info;
+        let response = {};
+
+        // build the response
+        portfolios.forEach((portfolio) => {
+            portfolio.id = DatastoreHelpers.getEntityId(portfolio);
+
+            // share only number of stocks and cryptos
+            portfolio.numStocks = portfolio.stocks.length;
+            portfolio.numCryptos = portfolio.cryptos.length;
+            delete portfolio.stocks;
+            delete portfolio.cryptos;
+
+            // do not share owners
+            delete portfolio.owner;
+
+            portfolio.self = ControllerHelpers.getURLWithId(req, portfolio.id);
+        });
+        response.portfolios = portfolios;
+
+        // check for additional pages
+        if (!DatastoreHelpers.noMoreResults(info)) {
+            response.next = req.protocol + '://' + req.get('host') + req.baseUrl + '?cursor=' + info.endCursor;
+        }
+
+        res.status(200).json(response).end();
     },
 
     putPortfolio: async (req, res) => {
