@@ -150,32 +150,60 @@ router.route('/:portfolioId')
     .delete(
         checkJwt,
         (req, res) => {
-        PortfolioControllers.deletePortfolio(req, res);
-    });
+            PortfolioControllers.deletePortfolio(req, res);
+        });
 
 router.route('/:portfolioId/stocks/:stockId')
     .patch(
         checkJwt,
         (req, res) => {
-        PortfolioControllers.addStockToPortfolio(req, res);
-    })
+            PortfolioControllers.addStockToPortfolio(req, res);
+        })
     .delete(
         checkJwt,
         (req, res) => {
-        PortfolioControllers.removeStockFromPortfolio(req, res);
-    });
+            PortfolioControllers.removeStockFromPortfolio(req, res);
+        })
+    .post(
+        (req, res) => {
+            res.status(405).set("Allow", "PATCH, DELETE").json({
+                Error: "Not Acceptable"
+            }).end();
+        }
+    )
+    .get(
+        (req, res) => {
+            res.status(405).set("Allow", "PATCH, DELETE").json({
+                Error: "Not Acceptable"
+            }).end();
+        }
+    );
 
 router.route('/:portfolioId/cryptos/:cryptoId')
     .patch(
         checkJwt,
         (req, res) => {
-        PortfolioControllers.addCryptoToPortfolio(req, res);
-    })
+            PortfolioControllers.addCryptoToPortfolio(req, res);
+        })
     .delete(
         checkJwt,
         (req, res) => {
-        PortfolioControllers.removeCryptoFromPortfolio(req, res);
-    });
+            PortfolioControllers.removeCryptoFromPortfolio(req, res);
+        })
+    .post(
+        (req, res) => {
+            res.status(405).set("Allow", "PATCH, DELETE").json({
+                Error: "Not Acceptable"
+            }).end();
+        }
+    )
+    .get(
+        (req, res) => {
+            res.status(405).set("Allow", "PATCH, DELETE").json({
+                Error: "Not Acceptable"
+            }).end();
+        }
+    );
 
 
 module.exports = router;

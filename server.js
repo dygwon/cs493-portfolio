@@ -4,13 +4,9 @@
 /**
  * TODO
  * - update status codes and documentation
- * - validation performs input validation and if parameter is present
- * - stocks and cryptocurrencies should be unique
- * - Accept = all headers should be considered valid
- * - update investor should be protected?
- * - properties modeling relationships are not considered valid, add more properties
- * - what do you do with a portfolio that has no owner?
- * - implement 405 status code
+ * - collection route related to user only shows resources that belong to authenticated user
+ * - two non-user entities need to have a relationship and exhibit adding and removing
+ * - GET /user to show all registered users
  */
 
 
