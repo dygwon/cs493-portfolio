@@ -78,6 +78,7 @@ router.route('/:investorId')
         body('lastName').isAlpha("en-US", {
             ignore: " -"
         }).exists(),
+        body('location').isAscii().exists(),
         (req, res) => {
 
             // check for valid request content type

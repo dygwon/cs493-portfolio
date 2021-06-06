@@ -52,6 +52,7 @@ module.exports = {
                 id: investorKey.id,
                 firstName: investor.firstName,
                 lastName: investor.lastName,
+                location: investor.location,
                 self: URL
             }).end();
 
@@ -107,6 +108,7 @@ module.exports = {
             // update investor data and save in datastore
             investor.firstName = req.body.firstName;
             investor.lastName = req.body.lastName;
+            investor.location = req.body.location;
             await DatastoreHelpers.updateEntity(investorKey, investor);
 
             // generate response with DTO
@@ -116,6 +118,7 @@ module.exports = {
                 id: investorKey.id,
                 firstName: investor.firstName,
                 lastName: investor.lastName,
+                location: investor.location,
                 self: URL
             }).end();
 
