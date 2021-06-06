@@ -33,6 +33,7 @@ A RESTful API with protected routes.
     "portfolios": [23456, 34567],
     "ticker": "W",
     "company": "Wayfair Inc.",
+    "ceo": "Niraj Shah"
 }
 ```
 

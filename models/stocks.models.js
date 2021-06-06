@@ -2,16 +2,18 @@
 
 
 class Stock {
-    constructor(ticker, company, portfolios=[]) {
+    constructor(ticker, company, ceo, portfolios=[]) {
         this.portfolios = portfolios;
         this.ticker = ticker;
         this.company = company;
+        this.ceo = ceo;
     }
 
     static fromReqBody(reqBody) {
         return new Stock(
             reqBody.ticker,
-            reqBody.company
+            reqBody.company,
+            reqBody.ceo
         );
     }
 
@@ -19,6 +21,7 @@ class Stock {
         return new Stock(
             data.ticker,
             data.company,
+            data.ceo,
             data.portfolios
         );
     }
