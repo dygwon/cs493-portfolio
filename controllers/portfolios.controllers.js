@@ -7,7 +7,12 @@
  */
 
 
-const { PORTFOLIO, STOCK, CRYPTO, PAGELIMIT } = require('../helpers/constants.helpers');
+const {
+    PORTFOLIO,
+    STOCK,
+    CRYPTO,
+    PAGELIMIT
+} = require('../helpers/constants.helpers');
 const Portfolio = require('../models/portfolios.models');
 const DatastoreHelpers = require('../helpers/datastore.helpers');
 const ControllerHelpers = require('../helpers/controllers.helpers');
@@ -27,6 +32,9 @@ module.exports = {
         res.status(201).json({
             id: portfolioKey.id,
             owner: portfolio.owner,
+            classification: portfolio.classification,
+            yearStarted: portfolio.yearStarted,
+            industryFocus: portfolio.industryFocus,
             stocks: portfolio.stocks,
             cryptos: portfolio.cryptos,
             self: URL
@@ -69,6 +77,9 @@ module.exports = {
             res.status(200).json({
                 id: portfolioKey.id,
                 owner: portfolio.owner,
+                classification: portfolio.classification,
+                yearStarted: portfolio.yearStarted,
+                industryFocus: portfolio.industryFocus,
                 stocks: companies,
                 cryptos: cryptoNames,
                 self: URL
@@ -123,7 +134,38 @@ module.exports = {
     },
 
     putPortfolio: async (req, res) => {
-        res.status(200).send("update a portfolio (put)").end();
+        try {
+
+            // generate key and get portfolio info
+            let portfolioId = parseInt(req.params.portfolioId, 10);
+            const portfolioKey = await DatastoreHelpers.getKey(PORTFOLIO, portfolioId);
+            const portfolioData = await DatastoreHelpers.getEntity(portfolioKey);
+            const portfolio = Portfolio.fromDatastore(portfolioData);
+
+            // update portfolio data and save in datastore
+            portfolio.classification = req.body.classification;
+            portfolio.yearStarted = req.body.yearStarted;
+            portfolio.industryFocus = req.body.industryFocus;
+            await DatastoreHelpers.updateEntity(portfolioKey, portfolio);
+
+            // generate response with DTO
+            let URL = ControllerHelpers.getURL(req, portfolioKey);
+            res.set('Content-Location', URL);
+            res.status(303).json({
+                id: portfolioKey.id,
+                classification: portfolio.classification,
+                yearStarted: portfolio.yearStarted,
+                industryFocus: portfolio.industryFocus,
+                stocks: portfolio.stocks,
+                cryptos: portfolio.cryptos,
+                self: URL
+            }).end();
+
+        } catch (err) {
+            res.status(404).json({
+                Error: "No portfolio with this id exists"
+            }).end();
+        }
     },
 
     patchPortfolio: async (req, res) => {
