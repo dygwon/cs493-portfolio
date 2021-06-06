@@ -10,7 +10,6 @@ const Crypto = require('../models/cryptos.models');
 const Portfolio = require('../models/portfolios.models');
 const DatastoreHelpers = require('../helpers/datastore.helpers');
 const ControllerHelpers = require('../helpers/controllers.helpers');
-const { Datastore } = require('@google-cloud/datastore');
 
 
 module.exports = {
