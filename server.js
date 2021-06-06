@@ -9,6 +9,7 @@
  * - Accept = all headers should be considered valid
  * - update investor should be protected?
  * - properties modeling relationships are not considered valid, add more properties
+ * - what do you do with a portfolio that has no owner?
  */
 
 

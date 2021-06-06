@@ -12,9 +12,11 @@
 
 const {
     INVESTOR,
+    PORTFOLIO,
     PAGELIMIT
 } = require('../helpers/constants.helpers');
 const Investor = require('../models/investors.models');
+const Portfolio = require('../models/portfolios.models');
 const DatastoreHelpers = require('../helpers/datastore.helpers');
 const ControllerHelpers = require('../helpers/controllers.helpers');
 
@@ -140,6 +142,34 @@ module.exports = {
     },
 
     deleteInvestor: async (req, res) => {
-        res.status(200).send("delete an investor").end();
+        try {
+
+            // get the investor's portfolio id
+            let investorId = parseInt(req.params.investorId, 10);
+            const investorKey = await DatastoreHelpers.getKey(INVESTOR, investorId);
+            const investorData = await DatastoreHelpers.getEntity(investorKey);
+            const investor = Investor.fromDatastore(investorData);
+            const portfolioId = investor.portfolio;
+
+            // TODO - update when association between investor and portfolio established
+            // // get the portfolio entity
+            // const portfolioKey = await DatastoreHelpers.getKey(PORTFOLIO, portfolioId);
+            // const portfolioData = await DatastoreHelpers.getEntity(portfolioKey);
+            // const portfolio = Portfolio.fromDatastore(portfolioData);
+            
+            // // remove the owner information associated with the portfolio
+            // portfolio.owner = null;
+            // await DatastoreHelpers.updateEntity(portfolioKey, portfolio);
+
+            // delete the investor's account
+            await DatastoreHelpers.removeEntity(investorKey);
+
+            res.status(204).send().end();
+
+        } catch (err) {
+            res.status(404).json({
+                Error: "No investor with this id exists"
+            });
+        }
     }
 };
