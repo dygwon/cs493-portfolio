@@ -2,7 +2,8 @@
 
 
 const {
-    CRYPTO, PAGELIMIT
+    CRYPTO,
+    PAGELIMIT
 } = require('../helpers/constants.helpers');
 const Crypto = require('../models/cryptos.models');
 const DatastoreHelpers = require('../helpers/datastore.helpers');
@@ -55,7 +56,35 @@ module.exports = {
     },
 
     listCryptos: async (req, res) => {
-        res.status(200).send("list cryptocurrencies").end();
+
+        // create the query
+        let query = DatastoreHelpers.createQuery(CRYPTO, PAGELIMIT);
+
+        // check if this request is from a previous page
+        if (Object.keys(req.query).includes("cursor")) {
+            query = query.start(req.query.cursor);
+        }
+
+        // get data from datastore
+        let queryResults = await DatastoreHelpers.runQuery(query);
+        let cryptos = queryResults.data;
+        let info = queryResults.info;
+        let response = {};
+
+        // build the reponse
+        cryptos.forEach((crypto) => {
+            crypto.id = DatastoreHelpers.getEntityId(crypto);
+            delete crypto.portfolios;
+            crypto.self = ControllerHelpers.getURLWithId(req, crypto.id);
+        });
+        response.cryptos = cryptos;
+
+        // check if there are additional pages
+        if (!DatastoreHelpers.noMoreResults(info)) {
+            response.next = req.protocol + '://' + req.get('host') + req.baseUrl + '?cursor=' + info.endCursor;
+        }
+
+        res.status(200).json(response).end();
     },
 
     putCrypto: async (req, res) => {

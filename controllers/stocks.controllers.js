@@ -53,7 +53,35 @@ module.exports = {
     },
 
     listStocks: async (req, res) => {
-        res.status(200).send("list stocks").end();
+
+        // create the query
+        let query = DatastoreHelpers.createQuery(STOCK, PAGELIMIT);
+
+        // check if this request is from a previous page
+        if (Object.keys(req.query).includes("cursor")) {
+            query = query.start(req.query.cursor);
+        }
+
+        // get data from datastore
+        let queryResults = await DatastoreHelpers.runQuery(query);
+        let stocks = queryResults.data;
+        let info = queryResults.info;
+        let response = {};
+
+        // build the reponse
+        stocks.forEach((stock) => {
+            stock.id = DatastoreHelpers.getEntityId(stock);
+            delete stock.portfolios;
+            stock.self = ControllerHelpers.getURLWithId(req, stock.id);
+        });
+        response.stocks = stocks;
+
+        // check if there are additional pages
+        if (!DatastoreHelpers.noMoreResults(info)) {
+            response.next = req.protocol + '://' + req.get('host') + req.baseUrl + '?cursor=' + info.endCursor;
+        }
+
+        res.status(200).json(response).end();
     },
 
     putStock: async (req, res) => {
