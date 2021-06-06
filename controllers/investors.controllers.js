@@ -95,7 +95,34 @@ module.exports = {
 
     // TODO: put, patch, and delete investor should be done by authenticated user?
     putInvestor: async (req, res) => {
-        res.status(200).send("update an investor (put)").end();
+        try {
+
+            // generate key and get investor info
+            let investorId = parseInt(req.params.investorId, 10);
+            const investorKey = await DatastoreHelpers.getKey(INVESTOR, investorId);
+            const investorData = await DatastoreHelpers.getEntity(investorKey);
+            const investor = Investor.fromDatastore(investorData);
+
+            // update investor data and save in datastore
+            investor.firstName = req.body.firstName;
+            investor.lastName = req.body.lastName;
+            await DatastoreHelpers.updateEntity(investorKey, investor);
+
+            // generate response with DTO
+            let URL = ControllerHelpers.getURL(req, investorKey);
+            res.set('Content-Location', URL);
+            res.status(200).json({
+                id: investorKey.id,
+                firstName: investor.firstName,
+                lastName: investor.lastName,
+                self: URL
+            }).end();
+
+        } catch (err) {
+            res.status(404).json({
+                Error: "No investor with this id exists"
+            }).end();
+        }
     },
 
     patchInvestor: async (req, res) => {

@@ -27,11 +27,21 @@ module.exports = {
         });
     },
 
+    // update an entity in the datastore
+    updateEntity: async (key, data) => {
+        await datastore.update({
+            "key": key,
+            "data": data
+        });
+    },
+
+    // get a single entity
     getEntity: async (key) => {
         const [ entity ] = await datastore.get(key);
         return entity;
     },
 
+    // create a query to be used to retrieve zero, one, or more entities
     createQuery: (type, pagelimit=null) => {
         let query;
         
@@ -45,6 +55,7 @@ module.exports = {
         return query;
     },
 
+    // execute the query to retrieve an entity
     runQuery: async (query) => {
         let results = await datastore.runQuery(query);
         return {
@@ -53,10 +64,12 @@ module.exports = {
         };
     },
 
+    // uses the Datastore's key attribute to extract the id from an entity
     getEntityId: (entity) => {
         return entity[Datastore.KEY].id;
     },
 
+    // checks if the current query has additional pages to show
     noMoreResults: (queryResultsInfo) => {
         return (queryResultsInfo.moreResults === Datastore.NO_MORE_RESULTS);
     }
