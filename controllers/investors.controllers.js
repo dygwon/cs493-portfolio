@@ -31,6 +31,7 @@ module.exports = {
             id: investorKey.id,
             firstName: investor.firstName,
             lastName: investor.lastName,
+            location: investor.location,
             portfolio: investor.portfolio,
             self: URL
         }).end();

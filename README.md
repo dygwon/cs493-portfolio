@@ -8,6 +8,7 @@ A RESTful API with protected routes.
     "id": 12345,
     "firstName": "Warren",
     "lastName": "Buffett",
+    "location": "Omaha, NE"
     "portfolio": 23456
 }
 ```

@@ -2,16 +2,18 @@
 
 
 class Investor {
-    constructor(firstName, lastName, portfolio=null) {
+    constructor(firstName, lastName, location, portfolio=null) {
         this.firstName = firstName;
         this.lastName = lastName;
+        this.location = location;
         this.portfolio = portfolio;
     }
 
     static fromReqBody(reqBody) {
         return new Investor(
             reqBody.firstName,
-            reqBody.lastName
+            reqBody.lastName,
+            reqBody.location
         );
     }
 
@@ -19,6 +21,7 @@ class Investor {
         return new Investor(
             data.firstName,
             data.lastName,
+            data.location,
             data.portfolio
         );
     }
