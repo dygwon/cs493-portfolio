@@ -114,11 +114,10 @@ router.route('/:investorId')
             ignore: " -"
         }).optional(),
         body('location').isAscii().optional(),
-
         (req, res) => {
 
             // check for valid request content type
-            if (req.headers['Content-Type'] && !req.is('application/json')) {
+            if (!req.is('application/json') && req.header('Content-Type')) {
                 return res.status(415).json({
                     Error: "Requested with an unsupported MIME type"
                 });
