@@ -30,6 +30,8 @@ const Auth0Strategy = require('passport-auth0');
 
 // routers and middleware
 const userInViews = require('./lib/middleware/userInViews');
+const authRouter = require('./routes/authentication/auth');
+const usersRouter = require('./routes/authentication/users');
 const investorsRouter = require('./routes/investors.routes');
 const portfoliosRouter = require('./routes/portfolios.routes');
 const stocksRouter = require('./routes/stocks.routes');
@@ -50,7 +52,7 @@ let sess = {
     secret: process.env.SESSION_SECRET,
     cookie: {},
     resave: false,
-    saveUnitialized: true
+    saveUninitialized: true
 };
 
 if (app.get('env') === 'production') {
@@ -83,27 +85,48 @@ let strategy = new Auth0Strategy({
  */
 app.use(bodyParser.json());
 app.use(logger('dev'));
+app.set('view engine', 'pug');
+
+app.use(session(sess));
+passport.use(strategy);
+app.use(passport.initialize());
+app.use(passport.session());
+
+// serialize to minimize the payload
+passport.serializeUser((user, done) => {
+    done(null, user);
+});
+passport.deserializeUser((user, done) => {
+    done(null, user);
+});
 
 
 /**
  * Custom Middleware
  */
+app.use((req, res, next) => {
+    res.locals.isAuthenticated = req.isAuthenticated();
+    next();
+});
 
 
 /**
  * Router Mounting
  */
+app.user(userInViews());
+app.use('/', authRouter);
+app.use('/', usersRouter);
 app.use('/investors', investorsRouter);
 app.use('/portfolios', portfoliosRouter);
 app.use('/stocks', stocksRouter);
 app.use('/cryptos', cryptoRouter);
 
-
 // GET Homepage
 app.get('/', (req, res, next) => {
-    res.status(200).send("app is working!").end();
+    res.render('index', {
+        title: 'Auth0 Webapp sample Nodejs'
+    });
 });
-
 
 
 // Listen on App Engine-specified port of 8080

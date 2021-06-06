@@ -1,0 +1,15 @@
+extends layout
+
+
+block layout-content
+  div.View.WelcomeView
+    h1.Banner Welcome!
+    div.NavButtons
+      if locals.user
+        a(href="/user")
+          div.NavButton User Profile
+        a(href="/logout")
+          div.NavButton Logout
+      else
+        a(href="/login")
+          div.NavButton Login
