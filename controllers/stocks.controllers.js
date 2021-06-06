@@ -89,7 +89,7 @@ module.exports = {
         res.status(200).json(response).end();
     },
 
-    putStock: async (req, res) => {
+    updateStock: async (req, res) => {
         try {
 
             // generate key and get stock info
@@ -99,15 +99,22 @@ module.exports = {
             const stock = Stock.fromDatastore(stockData);
 
             // update stock data and save in datastore
-            stock.ticker = req.body.ticker;
-            stock.company = req.body.company;
-            stock.ceo = req.body.ceo;
+            stock.ticker = req.body.ticker || stock.ticker;
+            stock.company = req.body.company || stock.company;
+            stock.ceo = req.body.ceo || stock.ceo;
             await DatastoreHelpers.updateEntity(stockKey, stock);
 
-            // generate response with DTO
+            // generate status and header based on HTTP method
             let URL = ControllerHelpers.getURL(req, stockKey);
-            res.set('Content-Location', URL);
-            res.status(303).json({
+            if (req.method == 'PUT') {
+                res.set('Content-Location', URL);
+                res.status(303);
+            } else {
+                res.status(200);
+            }
+
+            // send the response
+            res.json({
                 id: stockKey.id,
                 ticker: stock.ticker,
                 company: stock.company,
@@ -120,10 +127,6 @@ module.exports = {
                 Error: "No stock with this id exists"
             }).end();
         }
-    },
-
-    patchStock: async (req, res) => {
-        res.status(200).send("update a stock (patch)").end();
     },
 
     deleteStock: async (req, res) => {
