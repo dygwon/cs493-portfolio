@@ -3,11 +3,14 @@
 
 const {
     CRYPTO,
+    PORTFOLIO,
     PAGELIMIT
 } = require('../helpers/constants.helpers');
 const Crypto = require('../models/cryptos.models');
+const Portfolio = require('../models/portfolios.models');
 const DatastoreHelpers = require('../helpers/datastore.helpers');
 const ControllerHelpers = require('../helpers/controllers.helpers');
+const { Datastore } = require('@google-cloud/datastore');
 
 
 module.exports = {
@@ -130,6 +133,44 @@ module.exports = {
     },
 
     deleteCrypto: async (req, res) => {
-        res.status(200).send("delete a cryptocurrency").end();
+        try {
+
+            // get portfolios the crypto is in
+            let cryptoId = parseInt(req.params.cryptoId, 10);
+            const cryptoKey = await DatastoreHelpers.getKey(CRYPTO, cryptoId);
+            const cryptoData = await DatastoreHelpers.getEntity(cryptoKey);
+            const crypto = Crypto.fromDatastore(cryptoData);
+            const portfoliosHoldingCrypto = crypto.portfolios;
+
+            // remove the crypto from all portfolios that have it
+            let portfolioId, portfolioKey, portfolioData, portfolio;
+            let cryptoIndex;
+            for (let i = 0; i < portfoliosHoldingCrypto.length; i++) {
+                
+                // get portfolio from datastore
+                portfolioId = portfoliosHoldingCrypto[i];
+                portfolioKey = await DatastoreHelpers.getKey(PORTFOLIO, portfolioId);
+                portfolioData = await DatastoreHelpers.getEntity(portfolioKey);
+                portfolio = Portfolio.fromDatastore(portfolioData);
+                
+                // remove the crypto's id from the portfolio
+                cryptoIndex = portfolio.cryptos.indexOf(cryptoId);
+                if (cryptoIndex > -1) {
+                    portfolio.cryptos.splice(cryptoIndex, 1);
+                }
+
+                await DatastoreHelpers.updateEntity(portfolioKey, portfolio);
+            }
+
+            // remove the crypto from the datastore
+            await DatastoreHelpers.removeEntity(cryptoKey);
+
+            res.status(204).send().end();
+
+        } catch (err) {
+            res.status(404).json({
+                Error: "No crypto with this id exists"
+            });
+        }
     }
 };

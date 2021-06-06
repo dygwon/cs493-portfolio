@@ -3,9 +3,11 @@
 
 const {
     STOCK,
+    PORTFOLIO,
     PAGELIMIT
 } = require('../helpers/constants.helpers');
 const Stock = require('../models/stocks.models');
+const Portfolio = require('../models/portfolios.models');
 const DatastoreHelpers = require('../helpers/datastore.helpers');
 const ControllerHelpers = require('../helpers/controllers.helpers');
 
@@ -130,6 +132,44 @@ module.exports = {
     },
 
     deleteStock: async (req, res) => {
-        res.status(200).send("delete a stock").end();
+        try {
+
+            // get portfolios the stock is in
+            let stockId = parseInt(req.params.stockId, 10);
+            const stockKey = await DatastoreHelpers.getKey(STOCK, stockId);
+            const stockData = await DatastoreHelpers.getEntity(stockKey);
+            const stock = Stock.fromDatastore(stockData);
+            const portfoliosHoldingStock = stock.portfolios;
+
+            // remove the stock from all portfolios that have it
+            let portfolioId, portfolioKey, portfolioData, portfolio;
+            let stockIndex;
+            for (let i = 0; i < portfoliosHoldingStock.length; i++) {
+
+                // get portfolio from datastore
+                portfolioId = portfoliosHoldingStock[i];
+                portfolioKey = await DatastoreHelpers.getKey(PORTFOLIO, portfolioId);
+                portfolioData = await DatastoreHelpers.getEntity(portfolioKey);
+                portfolio = Portfolio.fromDatastore(portfolioData);
+
+                // remove the stock's id from the portfolio
+                stockIndex = portfolio.stocks.indexOf(stockId);
+                if (stockIndex > -1) {
+                    portfolio.stocks.splice(stockIndex, 1);
+                }
+
+                await DatastoreHelpers.updateEntity(portfolioKey, portfolio);
+            }
+
+            // remove the stock from the datastore
+            await DatastoreHelpers.removeEntity(stockKey);
+
+            res.status(204).send().end();
+
+        } catch (err) {
+            res.status(404).json({
+                Error: "No stock with this id exists"
+            });
+        }
     }
 };

@@ -41,6 +41,11 @@ module.exports = {
         return entity;
     },
 
+    // remove an entity from he datastore
+    removeEntity: async (key) => {
+        await datastore.delete(key);
+    },
+
     // create a query to be used to retrieve zero, one, or more entities
     createQuery: (type, pagelimit=null) => {
         let query;
