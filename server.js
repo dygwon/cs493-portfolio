@@ -8,6 +8,7 @@
  * - stocks and cryptocurrencies should be unique
  * - Accept = all headers should be considered valid
  * - update investor should be protected?
+ * - properties modeling relationships are not considered valid, add more properties
  */
 
 
