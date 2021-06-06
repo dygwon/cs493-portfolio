@@ -113,7 +113,7 @@ app.use((req, res, next) => {
 /**
  * Router Mounting
  */
-app.user(userInViews());
+app.use(userInViews());
 app.use('/', authRouter);
 app.use('/', usersRouter);
 app.use('/investors', investorsRouter);
