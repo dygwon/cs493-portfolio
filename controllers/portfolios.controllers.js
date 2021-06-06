@@ -187,10 +187,17 @@ module.exports = {
             portfolioId = parseInt(portfolioId, 10);
             stockId = parseInt(stockId, 10);
 
-            // check if the portfolio contains the stock
+            // get portfolio data
             const portfolioKey = await DatastoreHelpers.getKey(PORTFOLIO, portfolioId);
             const portfolioData = await DatastoreHelpers.getEntity(portfolioKey);
             const portfolio = Portfolio.fromDatastore(portfolioData);
+
+            // get stock data
+            const stockKey = await DatastoreHelpers.getKey(STOCK, stockId);
+            const stockData = await DatastoreHelpers.getEntity(stockKey);
+            const stock = Stock.fromDatastore(stockData);
+
+            // check if the portfolio contains the stock
             if (portfolio.stocks.includes(stockId)) {
                 throw "StockAlreadyInPortfolio";
             }
@@ -200,9 +207,6 @@ module.exports = {
             await DatastoreHelpers.updateEntity(portfolioKey, portfolio);
 
             // add the portfolio to the stock
-            const stockKey = await DatastoreHelpers.getKey(STOCK, stockId);
-            const stockData = await DatastoreHelpers.getEntity(stockKey);
-            const stock = Stock.fromDatastore(stockData);
             stock.portfolios.push(portfolioId);
             await DatastoreHelpers.updateEntity(stockKey, stock);
 
@@ -222,7 +226,54 @@ module.exports = {
     },
 
     removeStockFromPortfolio: async (req, res) => {
-        res.status(200).send("remove stock from portfolio").end();
+        try {
+            let portfolioId = req.params.portfolioId;
+            let stockId = req.params.stockId;
+            portfolioId = parseInt(portfolioId, 10);
+            stockId = parseInt(stockId, 10);
+
+            // get portfolio data
+            const portfolioKey = await DatastoreHelpers.getKey(PORTFOLIO, portfolioId);
+            const portfolioData = await DatastoreHelpers.getEntity(portfolioKey);
+            const portfolio = Portfolio.fromDatastore(portfolioData);
+
+            // get stock data
+            const stockKey = await DatastoreHelpers.getKey(STOCK, stockId);
+            const stockData = await DatastoreHelpers.getEntity(stockKey);
+            const stock = Stock.fromDatastore(stockData);
+
+            // check if the portfolio contains the stock
+            if (!portfolio.stocks.includes(stockId)) {
+                throw "StockNotInPortfolio";
+            }
+
+            // remove the stock from the portfolio
+            const stockIndex = portfolio.stocks.indexOf(stockId);
+            if (stockIndex > -1) {
+                portfolio.stocks.splice(stockIndex, 1);
+            }
+            await DatastoreHelpers.updateEntity(portfolioKey, portfolio);
+
+            // remove the portfolio from the stock
+            const portfolioIndex = stock.portfolios.indexOf(portfolioId);
+            if (portfolioIndex > -1) {
+                stock.portfolios.splice(portfolioIndex, 1);
+            }
+            await DatastoreHelpers.updateEntity(stockKey, stock);
+
+            res.status(204).send().end();
+
+        } catch (err) {
+            if (err === "StockNotInPortfolio") {
+                res.status(403).json({
+                    Error: "Not authenticated or stock not in portfolio"
+                }).end();
+            } else {
+                res.status(404).json({
+                    Error: "The specified portfolio and/or stock does not exist"
+                }).end();
+            }
+        }
     },
 
     addCryptoToPortfolio: async (req, res) => {
