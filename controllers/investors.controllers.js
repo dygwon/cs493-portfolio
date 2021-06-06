@@ -114,7 +114,7 @@ module.exports = {
             // generate response with DTO
             let URL = ControllerHelpers.getURL(req, investorKey);
             res.set('Content-Location', URL);
-            res.status(200).json({
+            res.status(303).json({
                 id: investorKey.id,
                 firstName: investor.firstName,
                 lastName: investor.lastName,

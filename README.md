@@ -18,6 +18,9 @@ A RESTful API with protected routes.
 {
     "id": 23456,
     "owner": "auth0|609efb758088040069629b85",
+    "classification": "value",
+    "yearStarted": 1951,
+    "industryFocus": "industrials",
     "stocks": [987, 876, 765],
     "cryptocurrencies": [135, 246],
 }
