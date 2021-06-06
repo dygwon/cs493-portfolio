@@ -84,6 +84,7 @@ router.route('/:portfolioId')
             PortfolioControllers.getPortfolio(req, res);
         })
     .put(
+        checkJwt,
         body('classification').exists(),
         body('yearStarted').isNumeric().exists(),
         body('industryFocus').exists(),
@@ -115,6 +116,7 @@ router.route('/:portfolioId')
             PortfolioControllers.updatePortfolio(req, res);
         })
     .patch(
+        checkJwt,
         body('classification').optional(),
         body('yearStarted').isNumeric().optional(),
         body('industryFocus').optional(),
@@ -145,23 +147,33 @@ router.route('/:portfolioId')
 
             PortfolioControllers.updatePortfolio(req, res);
         })
-    .delete((req, res) => {
+    .delete(
+        checkJwt,
+        (req, res) => {
         PortfolioControllers.deletePortfolio(req, res);
     });
 
 router.route('/:portfolioId/stocks/:stockId')
-    .patch((req, res) => {
+    .patch(
+        checkJwt,
+        (req, res) => {
         PortfolioControllers.addStockToPortfolio(req, res);
     })
-    .delete((req, res) => {
+    .delete(
+        checkJwt,
+        (req, res) => {
         PortfolioControllers.removeStockFromPortfolio(req, res);
     });
 
 router.route('/:portfolioId/cryptos/:cryptoId')
-    .patch((req, res) => {
+    .patch(
+        checkJwt,
+        (req, res) => {
         PortfolioControllers.addCryptoToPortfolio(req, res);
     })
-    .delete((req, res) => {
+    .delete(
+        checkJwt,
+        (req, res) => {
         PortfolioControllers.removeCryptoFromPortfolio(req, res);
     });
 
