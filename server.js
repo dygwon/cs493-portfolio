@@ -128,6 +128,16 @@ app.get('/', (req, res, next) => {
     });
 });
 
+// handle bad JWT errors
+app.use(function (err, req, res, next) {
+    console.error(err);
+    if (err.name === 'UnauthorizedError') {
+        res.status(401).json({
+            Error: "invalid token"
+        }).end();
+    }
+});
+
 
 // Listen on App Engine-specified port of 8080
 app.listen(PORT, () => {

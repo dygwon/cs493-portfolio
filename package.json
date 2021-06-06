@@ -28,6 +28,7 @@
     "express-session": "^1.17.2",
     "express-validator": "^6.11.1",
     "jshint": "^2.13.0",
+    "jwks-rsa": "^2.0.3",
     "morgan": "^1.10.0",
     "passport": "^0.4.1",
     "passport-auth0": "^1.4.0",

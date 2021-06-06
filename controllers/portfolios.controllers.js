@@ -23,6 +23,7 @@ const ControllerHelpers = require('../helpers/controllers.helpers');
 module.exports = {
     createPortfolio: async (req, res) => {
         const portfolio = Portfolio.fromReqBody(req.body);
+        portfolio.owner = req.user.sub;
 
         // generate key and save new portfolio
         let portfolioKey = await DatastoreHelpers.getEntityKey(PORTFOLIO);

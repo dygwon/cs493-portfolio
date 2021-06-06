@@ -15,11 +15,14 @@ const {
     validationResult
 } = require('express-validator');
 const PortfolioControllers = require('../controllers/portfolios.controllers');
+const {
+    checkJwt
+} = require('../helpers/jwt.helpers');
 
 
 router.route('/')
     .post(
-        body('owner').exists(),
+        checkJwt,
         body('classification').exists(),
         body('yearStarted').isNumeric().exists(),
         body('industryFocus').exists(),
@@ -50,32 +53,36 @@ router.route('/')
 
             PortfolioControllers.createPortfolio(req, res);
         })
-    .get((req, res) => {
+    .get(
+        checkJwt,
+        (req, res) => {
 
-        // check for valid requested content type
-        const requestAccepts = req.get('accept');
-        if (requestAccepts !== 'application/json') {
-            return res.status(406).json({
-                Error: "Requested an unsupported MIME type"
-            });
-        }
+            // check for valid requested content type
+            const requestAccepts = req.get('accept');
+            if (requestAccepts !== 'application/json') {
+                return res.status(406).json({
+                    Error: "Requested an unsupported MIME type"
+                });
+            }
 
-        PortfolioControllers.listPortfolios(req, res);
-    });
+            PortfolioControllers.listPortfolios(req, res);
+        });
 
 router.route('/:portfolioId')
-    .get((req, res) => {
+    .get(
+        checkJwt,
+        (req, res) => {
 
-        // check for valid requested content type
-        const requestAccepts = req.get('accept');
-        if (requestAccepts !== 'application/json') {
-            return res.status(406).json({
-                Error: "Requested an unsupported MIME type"
-            });
-        }
+            // check for valid requested content type
+            const requestAccepts = req.get('accept');
+            if (requestAccepts !== 'application/json') {
+                return res.status(406).json({
+                    Error: "Requested an unsupported MIME type"
+                });
+            }
 
-        PortfolioControllers.getPortfolio(req, res);
-    })
+            PortfolioControllers.getPortfolio(req, res);
+        })
     .put(
         body('classification').exists(),
         body('yearStarted').isNumeric().exists(),
