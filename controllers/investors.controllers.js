@@ -62,7 +62,35 @@ module.exports = {
     },
 
     listInvestors: async (req, res) => {
-        res.status(200).send("list investors").end();
+
+        // create the query
+        let query = DatastoreHelpers.createQuery(INVESTOR, PAGELIMIT);
+
+        // check if this request is from a previous page
+        if (Object.keys(req.query).includes("cursor")) {
+            query = query.start(req.query.cursor);
+        }
+
+        // get data from datastore
+        let queryResults = await DatastoreHelpers.runQuery(query);
+        let investors = queryResults.data;
+        let info = queryResults.info;
+        let response = {};
+
+        // build the reponse
+        investors.forEach((investor) => {
+            investor.id = DatastoreHelpers.getEntityId(investor);
+            delete investor.portfolio;
+            investor.self = ControllerHelpers.getURLWithId(req, investor.id);
+        });
+        response.investors = investors;
+
+        // check if there are additional pages
+        if (!DatastoreHelpers.noMoreResults(info)) {
+            response.next = req.protocol + '://' + req.get('host') + req.baseUrl + '?cursor=' + info.endCursor;
+        }
+
+        res.status(200).json(response).end();
     },
 
     // TODO: put, patch, and delete investor should be done by authenticated user?
