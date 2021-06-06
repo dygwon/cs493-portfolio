@@ -133,7 +133,7 @@ module.exports = {
         res.status(200).json(response).end();
     },
 
-    putPortfolio: async (req, res) => {
+    updatePortfolio: async (req, res) => {
         try {
 
             // generate key and get portfolio info
@@ -143,15 +143,22 @@ module.exports = {
             const portfolio = Portfolio.fromDatastore(portfolioData);
 
             // update portfolio data and save in datastore
-            portfolio.classification = req.body.classification;
-            portfolio.yearStarted = req.body.yearStarted;
-            portfolio.industryFocus = req.body.industryFocus;
+            portfolio.classification = req.body.classification || portfolio.classification;
+            portfolio.yearStarted = req.body.yearStarted || portfolio.yearStarted;
+            portfolio.industryFocus = req.body.industryFocus || portfolio.industryFocus;
             await DatastoreHelpers.updateEntity(portfolioKey, portfolio);
 
-            // generate response with DTO
+            // generate status and header based on HTTP method
             let URL = ControllerHelpers.getURL(req, portfolioKey);
-            res.set('Content-Location', URL);
-            res.status(303).json({
+            if (req.method == 'PUT') {
+                res.set('Content-Location', URL);
+                res.status(303);
+            } else {
+                res.status(200);
+            }
+
+            // send the response
+            res.json({
                 id: portfolioKey.id,
                 classification: portfolio.classification,
                 yearStarted: portfolio.yearStarted,
@@ -166,10 +173,6 @@ module.exports = {
                 Error: "No portfolio with this id exists"
             }).end();
         }
-    },
-
-    patchPortfolio: async (req, res) => {
-        res.status(200).send("update a portfolio (patch)").end();
     },
 
     deletePortfolio: async (req, res) => {

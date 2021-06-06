@@ -103,12 +103,44 @@ router.route('/:investorId')
                     Error: "The request object is missing at least one of the required attributes"
                 });
             }
-            
-            InvestorControllers.putInvestor(req, res);
+
+            InvestorControllers.updateInvestor(req, res);
         })
-    .patch((req, res) => {
-        InvestorControllers.patchInvestor(req, res);
-    })
+    .patch(
+        body('firstName').isAlpha("en-US", {
+            ignore: " -"
+        }).optional(),
+        body('lastName').isAlpha("en-US", {
+            ignore: " -"
+        }).optional(),
+        body('location').isAscii().optional(),
+        (req, res) => {
+
+            // check for valid request content type
+            if (!req.is('application/json') && req.header('Content-Type')) {
+                return res.status(415).json({
+                    Error: "Requested with an unsupported MIME type"
+                });
+            }
+
+            // check for valid requested content type
+            const requestAccepts = req.get('accept');
+            if (requestAccepts !== 'application/json') {
+                return res.status(406).json({
+                    Error: "Requested an unsupported MIME type"
+                });
+            }
+
+            // send error if required parameter(s) missing
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(400).json({
+                    Error: "The request object is missing at least one of the required attributes"
+                });
+            }
+
+            InvestorControllers.updateInvestor(req, res);
+        })
     .delete((req, res) => {
         InvestorControllers.deleteInvestor(req, res);
     });

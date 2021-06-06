@@ -89,7 +89,7 @@ module.exports = {
         res.status(200).json(response).end();
     },
 
-    putCrypto: async (req, res) => {
+    updateCrypto: async (req, res) => {
         try {
 
             // generate key and get crypto info
@@ -99,15 +99,22 @@ module.exports = {
             const crypto = Crypto.fromDatastore(cryptoData);
 
             // update crypto data and save in datastore
-            crypto.ticker = req.body.ticker;
-            crypto.name = req.body.name;
-            crypto.supply = req.body.supply;
+            crypto.ticker = req.body.ticker || crypto.ticker;
+            crypto.name = req.body.name || crypto.name;
+            crypto.supply = req.body.supply || crypto.supply;
             await DatastoreHelpers.updateEntity(cryptoKey, crypto);
 
-            // generate response with DTO
+            // generate status and header based on HTTP method
             let URL = ControllerHelpers.getURL(req, cryptoKey);
-            res.set('Content-Location', URL);
-            res.status(303).json({
+            if (req.method == 'PUT') {
+                res.set('Content-Location', URL);
+                res.status(303);
+            } else {
+                res.status(200);
+            }
+
+            // send the response
+            res.json({
                 id: cryptoKey.id,
                 ticker: crypto.ticker,
                 name: crypto.name,
@@ -120,10 +127,6 @@ module.exports = {
                 Error: "No crypto with this id exists"
             }).end();
         }
-    },
-
-    patchCrypto: async (req, res) => {
-        res.status(200).send("update a cryptocurrency (patch)").end();
     },
 
     deleteCrypto: async (req, res) => {
