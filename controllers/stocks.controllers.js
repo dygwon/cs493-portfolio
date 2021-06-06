@@ -1,7 +1,7 @@
 // ../controllers/stocks.controllers.js
 
 
-const { STOCK } = require('../helpers/constants.helpers');
+const { STOCK, PAGELIMIT } = require('../helpers/constants.helpers');
 const Stock = require('../models/stocks.models');
 const DatastoreHelpers = require('../helpers/datastore.helpers');
 const ControllerHelpers = require('../helpers/controllers.helpers');

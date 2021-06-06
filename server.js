@@ -6,6 +6,7 @@
  * - update status codes and documentation
  * - validation performs input validation and if parameter is present
  * - stocks and cryptocurrencies should be unique
+ * - Accept = all headers should be considered valid
  */
 
 

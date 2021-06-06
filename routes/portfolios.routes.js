@@ -48,6 +48,15 @@ router.route('/')
             PortfolioControllers.createPortfolio(req, res);
         })
     .get((req, res) => {
+
+        // check for valid requested content type
+        const requestAccepts = req.get('accept');
+        if (requestAccepts !== 'application/json') {
+            return res.status(406).json({
+                Error: "Requested an unsupported MIME type"
+            });
+        }
+
         PortfolioControllers.listPortfolios(req, res);
     });
 
@@ -61,7 +70,7 @@ router.route('/:portfolioId')
                 Error: "Requested an unsupported MIME type"
             });
         }
-        
+
         PortfolioControllers.getPortfolio(req, res);
     })
     .put((req, res) => {

@@ -7,7 +7,7 @@
  */
 
 
-const { PORTFOLIO, STOCK, CRYPTO } = require('../helpers/constants.helpers');
+const { PORTFOLIO, STOCK, CRYPTO, PAGELIMIT } = require('../helpers/constants.helpers');
 const Portfolio = require('../models/portfolios.models');
 const DatastoreHelpers = require('../helpers/datastore.helpers');
 const ControllerHelpers = require('../helpers/controllers.helpers');
