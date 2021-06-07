@@ -17,8 +17,7 @@ dotenv.config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const logger = require('morgan');
-const request = require('request');
-const axios = require('axios').default;
+var axios = require("axios").default;
 
 const session = require('express-session');
 const passport = require('passport');
@@ -119,52 +118,36 @@ app.use('/cryptos', cryptoRouter);
 
 // GET users
 app.get('/users', (req, res) => {
-
-    // get access token
-    let options = {
-        method: 'POST',
-        url: 'https://cs493-gwon.us.auth0.com/oauth/token',
-        headers: {
-            'content-type': 'application/x-www-form-urlencoded'
+    var options = {
+        method: 'GET',
+        url: 'https://cs493-gwon.us.auth0.com/api/v2/users',
+        params: {
+            search_engine: 'v3'
         },
-        data: {
-            grant_type: 'client_credentials',
-            client_id: process.env.AUTH0_CLIENT_ID,
-            client_secret: process.env.AUTH0_CLIENT_SECRET,
-            audience: 'https://cs493-gwon.us.auth0.com/api/v2/'
+        headers: {
+            authorization: `Bearer ${process.env.AUTH0_MANAGEMENT_API_TOKEN}`
         }
     };
 
-    request(options, function (error, response, body) {
-        if (error) {
-            throw new Error(error);
+    axios.request(options).then(function (response) {
+        let users = response.data;
+        let bunch = [];
+        let currentUser, currentUserData;
+        for (let i = 0; i < users.length; i++) {
+            currentUser = users[i];
+            currentUserData = {
+                user_id: currentUser.user_id,
+                email: currentUser.email,
+                nickname: currentUser.nickname,
+                created_at: currentUser.created_at
+            };
+            bunch.push(currentUserData);
         }
-        console.log(JSON.parse(body));
-        let accessToken = JSON.parse(body).access_token;
-        console.log(accessToken);
-        let authHeader = 'Bearer ' + accessToken;
-
-        let options2 = {
-            method: 'GET',
-            url: 'https://cs493-gwon.us.auth0.com/api/v2/users',
-            params: {
-                search_engine: 'v2'
-            },
-            headers: {
-                authorization: authHeader
-            }
-        };
-
-        request(options2, function (error, response, body) {
-            if (error) {
-                throw new Error(error);
-            }
-            console.log(body);
-            res.status(200).send(body).end();
-        });
+        res.send(bunch);
+    }).catch(function (error) {
+        console.error(error);
     });
 });
-
 
 // GET Homepage
 app.get('/', (req, res, next) => {
