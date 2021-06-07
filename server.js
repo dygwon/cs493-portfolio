@@ -4,7 +4,6 @@
 /**
  * TODO
  * - two non-user entities need to have a relationship and exhibit adding and removing
- * - GET /user to show all registered users
  */
 
 
