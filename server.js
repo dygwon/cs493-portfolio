@@ -19,6 +19,8 @@ dotenv.config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const logger = require('morgan');
+const request = require('request');
+const axios = require('axios').default;
 
 const session = require('express-session');
 const passport = require('passport');
@@ -117,6 +119,44 @@ app.use('/portfolios', portfoliosRouter);
 app.use('/stocks', stocksRouter);
 app.use('/cryptos', cryptoRouter);
 
+// GET users
+app.get('/users', (req, res) => {
+
+    // get access token
+    let options = {
+        method: 'POST',
+        url: 'https://cs493-gwon.us.auth0.com/oauth/token',
+        headers: {
+            'content-type': 'application/json'
+        },
+        body: '{"client_id":"Ue47gfLcx5bEsIVhSAcnuOWwCfDhapUU","client_secret":"0-9yytdbXZvsUEaSZLKng_wGxrMTaEp1mQsDURn4yvZ5GAYmJb0u1HioJ3qTYKfV","audience":"https://cs493-gwon.us.auth0.com/api/v2/","grant_type":"client_credentials"}'
+    };
+
+    request(options, function (error, response, body) {
+        if (error) {
+            throw new Error(error);
+        }
+        let accessToken = JSON.parse(body).access_token;
+
+        let options2 = {
+            method: 'GET',
+            url: 'https://cs493-gwon.us.auth0.com/api/v2/users',
+            headers: {
+                authorization: `Bearer ${accessToken}`
+            }
+        };
+
+        request(options2, function (error, response, body) {
+            if (error) {
+                throw new Error(error);
+            }
+            console.log(body);
+            res.status(200).send(body).end();
+        });
+    });
+});
+
+
 // GET Homepage
 app.get('/', (req, res, next) => {
     res.render('index', {
@@ -131,6 +171,7 @@ app.use(function (err, req, res, next) {
             Error: "invalid token"
         }).end();
     }
+    console.error(err);
 });
 
 
