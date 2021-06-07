@@ -20,6 +20,7 @@ const {
 
 router.route('/')
     .post(
+        checkJwt,
         body('classification').exists(),
         body('yearStarted').isNumeric().exists(),
         body('industryFocus').exists(),

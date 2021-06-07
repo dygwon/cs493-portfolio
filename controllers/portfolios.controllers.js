@@ -23,6 +23,7 @@ const ControllerHelpers = require('../helpers/controllers.helpers');
 module.exports = {
     createPortfolio: async (req, res) => {
         const portfolio = Portfolio.fromReqBody(req.body);
+        portfolio.owner = req.user.sub;
 
         // generate key and save new portfolio
         let portfolioKey = await DatastoreHelpers.getEntityKey(PORTFOLIO);
@@ -51,6 +52,11 @@ module.exports = {
             const portfolioKey = await DatastoreHelpers.getKey(PORTFOLIO, portfolioId);
             const portfolioData = await DatastoreHelpers.getEntity(portfolioKey);
             const portfolio = Portfolio.fromDatastore(portfolioData);
+
+            // verify user JWT matches portfolio
+            if (portfolio.owner !== req.user.sub) {
+                throw "InvalidUser";
+            }
 
             // get stock names
             let stockIds = portfolio.stocks;
@@ -88,9 +94,15 @@ module.exports = {
             }).end();
 
         } catch (err) {
-            res.status(404).json({
-                Error: "No portfolio with this id exists"
-            }).end();
+            if (err === "InvalidUser") {
+                res.status(403).json({
+                    Error: "You do not have access to this portfolio"
+                }).end();
+            } else {
+                res.status(404).json({
+                    Error: "No portfolio with this id exists"
+                }).end();
+            }
         }
     },
 

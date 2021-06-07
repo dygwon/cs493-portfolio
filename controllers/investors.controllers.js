@@ -168,48 +168,5 @@ module.exports = {
                 Error: "No investor with this id exists"
             });
         }
-    },
-
-    createInvestorsPortfolio: async (req, res) => {
-        try {
-
-            // check if investor already has a portfolio
-            let investorId = parseInt(req.params.investorId, 10);
-            const investorKey = await DatastoreHelpers.getKey(INVESTOR, investorId);
-            const investorData = await DatastoreHelpers.getEntity(investorKey);
-            const investor = Investor.fromDatastore(investorData);
-            if (investor.portfolio !== null) {
-                throw "InvestorHasPortfolio";
-            }
-
-            // generate key and save new portfolio with investor's sub
-            const portfolio = Portfolio.fromReqBody(req.body);
-            portfolio.owner = req.user.sub;
-            let portfolioKey = await DatastoreHelpers.getEntityKey(PORTFOLIO);
-            await DatastoreHelpers.createEntity(portfolioKey, portfolio);
-
-            // save the portfolio id to the investor entity
-            investor.portfolio = portfolioKey.id;
-            await DatastoreHelpers.updateEntity(investorKey, investor);
-
-            // generate response with DTO
-            let URL = req.protocol + '://' + req.get('host') + '/portfolios/' + portfolioKey.id;
-            res.set("Content-Location", URL);
-            res.status(201).json({
-                id: portfolioKey.id,
-                owner: portfolio.owner,
-                classification: portfolio.classification,
-                yearStarted: portfolio.yearStarted,
-                industryFocus: portfolio.industryFocus,
-                stocks: portfolio.stocks,
-                cryptos: portfolio.cryptos,
-                self: URL
-            }).end();
-
-        } catch (err) {
-            res.status(403).json({
-                Error: "Investor has portfolio"
-            });
-        }
     }
 };
