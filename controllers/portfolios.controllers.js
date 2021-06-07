@@ -24,11 +24,6 @@ module.exports = {
     createPortfolio: async (req, res) => {
         const portfolio = Portfolio.fromReqBody(req.body);
 
-        // associate with user sub if being created by an authenticated user
-        if (req.user.sub) {
-            portfolio.owner = req.user.sub;
-        }
-
         // generate key and save new portfolio
         let portfolioKey = await DatastoreHelpers.getEntityKey(PORTFOLIO);
         await DatastoreHelpers.createEntity(portfolioKey, portfolio);

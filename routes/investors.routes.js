@@ -7,7 +7,6 @@ const {
     validationResult
 } = require('express-validator');
 const InvestorControllers = require('../controllers/investors.controllers');
-const PortfolioControllers = require('../controllers/portfolios.controllers');
 const {
     checkJwt
 } = require('../helpers/jwt.helpers');
@@ -51,7 +50,6 @@ router.route('/')
             InvestorControllers.createInvestor(req, res);
         })
     .get(
-        checkJwt,
         (req, res) => {
 
             // check for valid requested content type
@@ -192,7 +190,7 @@ router.route('/:investorId/portfolios')
                 });
             }
 
-            PortfolioControllers.createPortfolio(req, res);
+            InvestorControllers.createInvestorsPortfolio(req, res);
 
         }
     );
