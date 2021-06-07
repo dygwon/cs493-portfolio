@@ -2,10 +2,11 @@
 
 
 class Investor {
-    constructor(firstName, lastName, location, portfolio=null) {
+    constructor(firstName, lastName, location, bullish=null, portfolio=null) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.location = location;
+        this.bullish = bullish;
         this.portfolio = portfolio;
     }
 
@@ -22,6 +23,7 @@ class Investor {
             data.firstName,
             data.lastName,
             data.location,
+            data.bullish,
             data.portfolio
         );
     }

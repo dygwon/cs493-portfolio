@@ -4,12 +4,14 @@
 const {
     STOCK,
     PORTFOLIO,
-    PAGELIMIT
+    PAGELIMIT,
+    INVESTOR
 } = require('../helpers/constants.helpers');
 const Stock = require('../models/stocks.models');
 const Portfolio = require('../models/portfolios.models');
 const DatastoreHelpers = require('../helpers/datastore.helpers');
 const ControllerHelpers = require('../helpers/controllers.helpers');
+const Investor = require('../models/investors.models');
 
 
 module.exports = {
@@ -159,6 +161,21 @@ module.exports = {
                 }
 
                 await DatastoreHelpers.updateEntity(portfolioKey, portfolio);
+            }
+
+            // remove the stock from all investors that are bullish on it
+            let investorId, investorKey, investorData, investor;
+            for (let i = 0; i < stock.bulls.length; i++) {
+
+                // get portfolio from datastore
+                investorId = portfoliosHoldingStock[i];
+                investorKey = await DatastoreHelpers.getKey(INVESTOR, investorId);
+                investorData = await DatastoreHelpers.getEntity(investorKey);
+                investor = Investor.fromDatastore(investorData);
+
+                // remove the stock's id from the portfolio
+                investor.bullish = null;
+                await DatastoreHelpers.updateEntity(investorKey, investor);
             }
 
             // remove the stock from the datastore

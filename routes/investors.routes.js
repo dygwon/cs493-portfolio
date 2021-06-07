@@ -6,6 +6,7 @@ const {
     body,
     validationResult
 } = require('express-validator');
+const { addStockToInvestor } = require('../controllers/investors.controllers');
 const InvestorControllers = require('../controllers/investors.controllers');
 const {
     checkJwt
@@ -151,5 +152,12 @@ router.route('/:investorId')
             InvestorControllers.deleteInvestor(req, res);
         });
 
+router.route('/:investorId/stocks/:stockId')
+    .patch((req, res) => {
+        InvestorControllers.addStockToInvestor(req, res);
+    })
+    .delete((req, res) => {
+        InvestorControllers.removeStockFromInvestor(req, res);
+    });
 
 module.exports = router;

@@ -13,10 +13,12 @@
 const {
     INVESTOR,
     PORTFOLIO,
+    STOCK,
     PAGELIMIT
 } = require('../helpers/constants.helpers');
 const Investor = require('../models/investors.models');
 const Portfolio = require('../models/portfolios.models');
+const Stock = require('../models/stocks.models');
 const DatastoreHelpers = require('../helpers/datastore.helpers');
 const ControllerHelpers = require('../helpers/controllers.helpers');
 
@@ -37,6 +39,7 @@ module.exports = {
             firstName: investor.firstName,
             lastName: investor.lastName,
             location: investor.location,
+            bullish: investor.bullish,
             portfolio: investor.portfolio,
             self: URL
         }).end();
@@ -58,6 +61,7 @@ module.exports = {
                 firstName: investor.firstName,
                 lastName: investor.lastName,
                 location: investor.location,
+                bullish: investor.bullish,
                 portfolio: investor.portfolio,
                 self: URL
             }).end();
@@ -150,6 +154,19 @@ module.exports = {
             const investorData = await DatastoreHelpers.getEntity(investorKey);
             const investor = Investor.fromDatastore(investorData);
 
+            // remove from stock
+            if (investor.bullish !== null) {
+                let stockId = investor.bullish;
+                const stockKey = await DatastoreHelpers.getKey(STOCK, stockId);
+                const stockData = await DatastoreHelpers.getEntity(stockKey);
+                const stock = Stock.fromDatastore(stockData);
+                const investorIndex = stock.bulls.indexOf(investorId);
+                if (investorIndex > -1) {
+                    stock.bulls.splice(investorIndex, 1);
+                }
+                await DatastoreHelpers.updateEntity(stockKey, stock);
+            }
+
             // TODO - add portfolios to investors
             // const portfolioId = investor.portfolio;
 
@@ -169,6 +186,80 @@ module.exports = {
             res.status(404).json({
                 Error: "No investor with this id exists"
             });
+        }
+    },
+
+    addStockToInvestor: async (req, res) => {
+        try {
+            let investorId = parseInt(req.params.investorId, 10);
+            let stockId = parseInt(req.params.stockId, 10);
+
+            // get investor bullish stock
+            const investorKey = await DatastoreHelpers.getKey(INVESTOR, investorId);
+            const investorData = await DatastoreHelpers.getEntity(investorKey);
+            const investor = Investor.fromDatastore(investorData);
+            if (investor.bullish !== null) {
+                throw "AlreadyHavePosition";
+            }
+
+            // verify stock exists and doesn't already have this bullish investor
+            let stockKey = await DatastoreHelpers.getKey(STOCK, stockId);
+            const stockData = await DatastoreHelpers.getEntity(stockKey);
+            const stock = Stock.fromDatastore(stockData);
+            stock.bulls.forEach((bull) => {
+                if (bull === investorId) {
+                    throw "AlreadyHavePosition";
+                }
+            });
+
+            // update the investor and stock
+            investor.bullish = stockId;
+            stock.bulls.push(investorId);
+            await DatastoreHelpers.updateEntity(investorKey, investor);
+            await DatastoreHelpers.updateEntity(stockKey, stock);
+
+            res.status(204).send().end();
+
+        } catch (err) {
+            res.status(404).json({
+                Error: "Investor/stock doesn't exist or Investor already has a bullish position"
+            }).end();
+        }
+    },
+
+    removeStockFromInvestor: async (req, res) => {
+        try {
+            let investorId = parseInt(req.params.investorId, 10);
+            let stockId = parseInt(req.params.stockId, 10);
+
+            // get investor bullish stock
+            const investorKey = await DatastoreHelpers.getKey(INVESTOR, investorId);
+            const investorData = await DatastoreHelpers.getEntity(investorKey);
+            const investor = Investor.fromDatastore(investorData);
+            if (investor.bullish !== stockId) {
+                throw "InvalidId";
+            }
+
+            // verify stock exists and doesn't already have this bullish investor
+            let stockKey = await DatastoreHelpers.getKey(STOCK, stockId);
+            const stockData = await DatastoreHelpers.getEntity(stockKey);
+            const stock = Stock.fromDatastore(stockData);
+            const investorIndex = stock.bulls.indexOf(investorId);
+            if (investorIndex > -1) {
+                stock.bulls.splice(investorIndex, 1);
+            }
+
+            // update the investor and stock
+            investor.bullish = null;
+            await DatastoreHelpers.updateEntity(investorKey, investor);
+            await DatastoreHelpers.updateEntity(stockKey, stock);
+
+            res.status(204).send().end();
+
+        } catch (err) {
+            res.status(404).json({
+                Error: "Invalid Relationship"
+            }).end();
         }
     }
 };
