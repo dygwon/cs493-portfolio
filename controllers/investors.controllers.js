@@ -149,14 +149,16 @@ module.exports = {
             const investorKey = await DatastoreHelpers.getKey(INVESTOR, investorId);
             const investorData = await DatastoreHelpers.getEntity(investorKey);
             const investor = Investor.fromDatastore(investorData);
-            const portfolioId = investor.portfolio;
 
-            // remove the investor's information from the portfolio
-            const portfolioKey = DatastoreHelpers.getKey(PORTFOLIO, portfolioId);
-            const portfolioData = await DatastoreHelpers.getEntity(portfolioKey);
-            const portfolio = Portfolio.fromDatastore(portfolioData);
-            portfolio.owner = null;
-            await DatastoreHelpers.updateEntity(PORTFOLIO, portfolio);
+            // TODO - add portfolios to investors
+            // const portfolioId = investor.portfolio;
+
+            // // remove the investor's information from the portfolio
+            // const portfolioKey = DatastoreHelpers.getKey(PORTFOLIO, portfolioId);
+            // const portfolioData = await DatastoreHelpers.getEntity(portfolioKey);
+            // const portfolio = Portfolio.fromDatastore(portfolioData);
+            // portfolio.owner = null;
+            // await DatastoreHelpers.updateEntity(PORTFOLIO, portfolio);
 
             // delete the investor's account
             await DatastoreHelpers.removeEntity(investorKey);

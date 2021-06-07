@@ -424,9 +424,9 @@ module.exports = {
             const portfolioData = await DatastoreHelpers.getEntity(portfolioKey);
             const portfolio = Portfolio.fromDatastore(portfolioData);
 
-            // check if the portfolio contains the stock
-            if (!portfolio.stocks.includes(stockId)) {
-                throw "StockNotInPortfolio";
+            // verify user JWT matches portfolio
+            if (portfolio.owner !== req.user.sub) {
+                throw "InvalidUser";
             }
 
             // get crypto data
@@ -478,9 +478,9 @@ module.exports = {
             const portfolioData = await DatastoreHelpers.getEntity(portfolioKey);
             const portfolio = Portfolio.fromDatastore(portfolioData);
 
-            // check if the portfolio contains the stock
-            if (!portfolio.stocks.includes(stockId)) {
-                throw "StockNotInPortfolio";
+            // verify user JWT matches portfolio
+            if (portfolio.owner !== req.user.sub) {
+                throw "InvalidUser";
             }
 
             // get crypto data

@@ -3,8 +3,6 @@
 
 /**
  * TODO
- * - update status codes and documentation
- * - collection route related to user only shows resources that belong to authenticated user
  * - two non-user entities need to have a relationship and exhibit adding and removing
  * - GET /user to show all registered users
  */
