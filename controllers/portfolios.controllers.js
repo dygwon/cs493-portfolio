@@ -18,6 +18,9 @@ const Stock = require('../models/stocks.models');
 const Crypto = require('../models/cryptos.models');
 const DatastoreHelpers = require('../helpers/datastore.helpers');
 const ControllerHelpers = require('../helpers/controllers.helpers');
+const {
+    Datastore
+} = require('@google-cloud/datastore');
 
 
 module.exports = {
@@ -107,6 +110,30 @@ module.exports = {
     },
 
     listPortfolios: async (req, res) => {
+        if (req.user) {
+            let query = DatastoreHelpers.createQuery(PORTFOLIO);
+            let queryResults = await DatastoreHelpers.runQuery(query);
+            let portfolios = queryResults.data;
+            let userPortfolio;
+            portfolios.forEach((portfolio) => {
+                if (portfolio.owner === req.user.sub) {
+                    userPortfolio = portfolio;
+                }
+            });
+
+            // send the response
+            let URL = ControllerHelpers.getURLWithId(req, userPortfolio.id);
+            res.status(200).json({
+                id: userPortfolio.id,
+                owner: userPortfolio.owner,
+                classification: userPortfolio.classification,
+                yearStarted: userPortfolio.yearStarted,
+                industryFocus: userPortfolio.industryFocus,
+                stocks: userPortfolio.stocks,
+                cryptos: userPortfolio.cryptos,
+                self: URL
+            }).end();
+        }
 
         // create the query
         let query = DatastoreHelpers.createQuery(PORTFOLIO, PAGELIMIT);
@@ -156,6 +183,11 @@ module.exports = {
             const portfolioData = await DatastoreHelpers.getEntity(portfolioKey);
             const portfolio = Portfolio.fromDatastore(portfolioData);
 
+            // verify user JWT matches portfolio
+            if (portfolio.owner !== req.user.sub) {
+                throw "InvalidUser";
+            }
+
             // update portfolio data and save in datastore
             portfolio.classification = req.body.classification || portfolio.classification;
             portfolio.yearStarted = req.body.yearStarted || portfolio.yearStarted;
@@ -183,9 +215,15 @@ module.exports = {
             }).end();
 
         } catch (err) {
-            res.status(404).json({
-                Error: "No portfolio with this id exists"
-            }).end();
+            if (err === 'InvalidUser') {
+                res.status(403).json({
+                    Error: "You do not have access to this portfolio"
+                }).end();
+            } else {
+                res.status(404).json({
+                    Error: "No portfolio with this id exists"
+                }).end();
+            }
         }
     },
 
@@ -197,6 +235,12 @@ module.exports = {
             const portfolioKey = await DatastoreHelpers.getKey(PORTFOLIO, portfolioId);
             const portfolioData = await DatastoreHelpers.getEntity(portfolioKey);
             const portfolio = Portfolio.fromDatastore(portfolioData);
+
+            // verify user JWT matches portfolio
+            if (portfolio.owner !== req.user.sub) {
+                throw "InvalidUser";
+            }
+
             const stocksInPortfolio = portfolio.stocks;
             const cryptosInPortfolio = portfolio.cryptos;
 
@@ -242,9 +286,15 @@ module.exports = {
             res.status(204).send().end();
 
         } catch (err) {
-            res.status(404).json({
-                Error: "No stock with this id exists"
-            });
+            if (err === 'InvalidUser') {
+                res.status(403).json({
+                    Error: "You do not have access to this portfolio"
+                }).end();
+            } else {
+                res.status(404).json({
+                    Error: "No portfolio with this id exists"
+                });
+            }
         }
     },
 
@@ -259,6 +309,11 @@ module.exports = {
             const portfolioKey = await DatastoreHelpers.getKey(PORTFOLIO, portfolioId);
             const portfolioData = await DatastoreHelpers.getEntity(portfolioKey);
             const portfolio = Portfolio.fromDatastore(portfolioData);
+
+            // verify user JWT matches portfolio
+            if (portfolio.owner !== req.user.sub) {
+                throw "InvalidUser";
+            }
 
             // get stock data
             const stockKey = await DatastoreHelpers.getKey(STOCK, stockId);
@@ -285,6 +340,10 @@ module.exports = {
                 res.status(403).json({
                     Error: "Not authenticated or stock already in portfolio"
                 }).end();
+            } else if (err === 'InvalidUser') {
+                res.status(403).json({
+                    Error: "You do not have access to this portfolio"
+                }).end();
             } else {
                 res.status(404).json({
                     Error: "The specified portfolio and/or stock does not exist"
@@ -304,6 +363,11 @@ module.exports = {
             const portfolioKey = await DatastoreHelpers.getKey(PORTFOLIO, portfolioId);
             const portfolioData = await DatastoreHelpers.getEntity(portfolioKey);
             const portfolio = Portfolio.fromDatastore(portfolioData);
+
+            // verify user JWT matches portfolio
+            if (portfolio.owner !== req.user.sub) {
+                throw "InvalidUser";
+            }
 
             // get stock data
             const stockKey = await DatastoreHelpers.getKey(STOCK, stockId);
@@ -336,6 +400,10 @@ module.exports = {
                 res.status(403).json({
                     Error: "Not authenticated or stock not in portfolio"
                 }).end();
+            } else if (err === 'InvalidUser') {
+                res.status(403).json({
+                    Error: "You do not have access to this portfolio"
+                }).end();
             } else {
                 res.status(404).json({
                     Error: "The specified portfolio and/or stock does not exist"
@@ -355,6 +423,11 @@ module.exports = {
             const portfolioKey = await DatastoreHelpers.getKey(PORTFOLIO, portfolioId);
             const portfolioData = await DatastoreHelpers.getEntity(portfolioKey);
             const portfolio = Portfolio.fromDatastore(portfolioData);
+
+            // check if the portfolio contains the stock
+            if (!portfolio.stocks.includes(stockId)) {
+                throw "StockNotInPortfolio";
+            }
 
             // get crypto data
             const cryptoKey = await DatastoreHelpers.getKey(CRYPTO, cryptoId);
@@ -381,6 +454,10 @@ module.exports = {
                 res.status(403).json({
                     Error: "Not authenticated or crypto already in portfolio"
                 }).end();
+            } else if (err === 'InvalidUser') {
+                res.status(403).json({
+                    Error: "You do not have access to this portfolio"
+                }).end();
             } else {
                 res.status(404).json({
                     Error: "The specified portfolio and/or crypto does not exist"
@@ -400,6 +477,11 @@ module.exports = {
             const portfolioKey = await DatastoreHelpers.getKey(PORTFOLIO, portfolioId);
             const portfolioData = await DatastoreHelpers.getEntity(portfolioKey);
             const portfolio = Portfolio.fromDatastore(portfolioData);
+
+            // check if the portfolio contains the stock
+            if (!portfolio.stocks.includes(stockId)) {
+                throw "StockNotInPortfolio";
+            }
 
             // get crypto data
             const cryptoKey = await DatastoreHelpers.getKey(CRYPTO, cryptoId);
@@ -431,6 +513,10 @@ module.exports = {
             if (err === "CryptoNotInPortfolio") {
                 res.status(403).json({
                     Error: "Not authenticated or crypto not in portfolio"
+                }).end();
+            } else if (err === 'InvalidUser') {
+                res.status(403).json({
+                    Error: "You do not have access to this portfolio"
                 }).end();
             } else {
                 res.status(404).json({

@@ -1,12 +1,6 @@
 // ../routes/portfolios.routes.js
 
 
-/**
- * TODO
- * - add/remove for portfolio:stock and portfolio:crypto relationships should be protected
- */
-
-
 const router = require('express-promise-router')();
 const {
     body,
@@ -14,7 +8,8 @@ const {
 } = require('express-validator');
 const PortfolioControllers = require('../controllers/portfolios.controllers');
 const {
-    checkJwt
+    checkJwt,
+    checkJwtUnregistered
 } = require('../helpers/jwt.helpers');
 
 
@@ -52,7 +47,7 @@ router.route('/')
             PortfolioControllers.createPortfolio(req, res);
         })
     .get(
-        checkJwt,
+        checkJwtUnregistered,
         (req, res) => {
 
             // check for valid requested content type

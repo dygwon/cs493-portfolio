@@ -8,5 +8,5 @@ module.exports = {
 
     getURLWithId: (req, id) => {
         return req.protocol + '://' + req.get('host') + req.baseUrl + '/' + id;
-    }
+    },
 };

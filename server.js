@@ -127,22 +127,33 @@ app.get('/users', (req, res) => {
         method: 'POST',
         url: 'https://cs493-gwon.us.auth0.com/oauth/token',
         headers: {
-            'content-type': 'application/json'
+            'content-type': 'application/x-www-form-urlencoded'
         },
-        body: '{"client_id":"Ue47gfLcx5bEsIVhSAcnuOWwCfDhapUU","client_secret":"0-9yytdbXZvsUEaSZLKng_wGxrMTaEp1mQsDURn4yvZ5GAYmJb0u1HioJ3qTYKfV","audience":"https://cs493-gwon.us.auth0.com/api/v2/","grant_type":"client_credentials"}'
+        data: {
+            grant_type: 'client_credentials',
+            client_id: process.env.AUTH0_CLIENT_ID,
+            client_secret: process.env.AUTH0_CLIENT_SECRET,
+            audience: 'https://cs493-gwon.us.auth0.com/api/v2/'
+        }
     };
 
     request(options, function (error, response, body) {
         if (error) {
             throw new Error(error);
         }
+        console.log(JSON.parse(body));
         let accessToken = JSON.parse(body).access_token;
+        console.log(accessToken);
+        let authHeader = 'Bearer ' + accessToken;
 
         let options2 = {
             method: 'GET',
             url: 'https://cs493-gwon.us.auth0.com/api/v2/users',
+            params: {
+                search_engine: 'v2'
+            },
             headers: {
-                authorization: `Bearer ${accessToken}`
+                authorization: authHeader
             }
         };
 

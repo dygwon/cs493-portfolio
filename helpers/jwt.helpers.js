@@ -18,5 +18,19 @@ module.exports = {
         // validate the audience and issuer
         issuer: `https://${process.env.AUTH0_DOMAIN}/`,
         algorithms: ['RS256']
+    }),
+
+    checkJwtUnregistered: jwt({
+        secret: jwksRsa.expressJwtSecret({
+            cache: true,
+            rateLimit: true,
+            jwksRequestsPerMinute: 5,
+            jwksUri: `https://${process.env.AUTH0_DOMAIN}/.well-known/jwks.json`
+        }),
+        credentialsRequired: false,
+
+        // validate the audience and issuer
+        issuer: `https://${process.env.AUTH0_DOMAIN}/`,
+        algorithms: ['RS256']
     })
 };
