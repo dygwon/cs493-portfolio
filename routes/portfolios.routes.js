@@ -3,8 +3,6 @@
 
 /**
  * TODO
- * - authenticate and create protected and unprotected routes for list portfolios
- * - update and delete should be protected
  * - add/remove for portfolio:stock and portfolio:crypto relationships should be protected
  */
 
@@ -22,7 +20,6 @@ const {
 
 router.route('/')
     .post(
-        checkJwt,
         body('classification').exists(),
         body('yearStarted').isNumeric().exists(),
         body('industryFocus').exists(),

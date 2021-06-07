@@ -3,7 +3,8 @@
 
 module.exports = {
     getURL: (req, key) => {
-        return req.protocol + '://' + req.get('host') + req.baseUrl + '/' + key.id;
+        let baseUrl = req.user.sub ? '/portfolios' : req.baseUrl;
+        return req.protocol + '://' + req.get('host') + baseUrl + '/' + key.id;
     },
 
     getURLWithId: (req, id) => {
